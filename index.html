@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TikPromo Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0B0D12;
+    --surface:#14171F;
+    --surface2:#1B1F2A;
+    --line:#262B38;
+    --text:#F2F3F5;
+    --muted:#8A90A0;
+    --cyan:#25F4EE;
+    --pink:#FE2C55;
+    --amber:#FFB020;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    font-size:15px;
+    line-height:1.5;
+    min-height:100vh;
+  }
+  header{
+    padding:28px 20px 18px;
+    text-align:center;
+    border-bottom:1px solid var(--line);
+  }
+  h1{
+    font-family:'Unbounded',sans-serif;
+    font-weight:900;
+    font-size:clamp(24px,5vw,38px);
+    letter-spacing:.5px;
+    text-shadow:-3px 0 var(--cyan), 3px 0 var(--pink);
+  }
+  header p{color:var(--muted);margin-top:6px;font-size:13px}
+  nav{
+    display:flex;
+    justify-content:center;
+    gap:8px;
+    padding:14px 12px;
+    flex-wrap:wrap;
+    border-bottom:1px solid var(--line);
+    position:sticky;top:0;background:var(--bg);z-index:10;
+  }
+  nav button{
+    background:var(--surface);
+    color:var(--muted);
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:9px 18px;
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:14px;
+    cursor:pointer;
+    transition:all .15s;
+  }
+  nav button:hover{color:var(--text)}
+  nav button.active{
+    color:#0B0D12;
+    background:linear-gradient(90deg,var(--cyan),#7ef9f4);
+    border-color:transparent;
+  }
+  main{max-width:860px;margin:0 auto;padding:22px 16px 80px}
+  section{display:none}
+  section.active{display:block;animation:fadeIn .25s ease}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion: reduce){section.active{animation:none}}
+
+  .card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:20px;
+    margin-bottom:16px;
+  }
+  h2{
+    font-family:'Unbounded',sans-serif;
+    font-weight:700;
+    font-size:18px;
+    margin-bottom:14px;
+  }
+  h3{font-size:15px;font-weight:700;margin-bottom:8px}
+  label{
+    display:block;
+    font-size:13px;
+    font-weight:600;
+    color:var(--muted);
+    margin:12px 0 5px;
+  }
+  input,select,textarea{
+    width:100%;
+    background:var(--surface2);
+    border:1px solid var(--line);
+    border-radius:10px;
+    color:var(--text);
+    padding:11px 13px;
+    font-family:'Inter',sans-serif;
+    font-size:15px;
+  }
+  input:focus,select:focus,textarea:focus{
+    outline:2px solid var(--cyan);
+    outline-offset:1px;
+    border-color:transparent;
+  }
+  textarea{resize:vertical;min-height:70px}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:560px){.row{grid-template-columns:1fr}}
+
+  .btn{
+    display:inline-block;
+    border:none;
+    border-radius:10px;
+    padding:12px 22px;
+    font-family:'Inter',sans-serif;
+    font-weight:700;
+    font-size:15px;
+    cursor:pointer;
+    margin-top:16px;
+    transition:transform .1s;
+  }
+  .btn:active{transform:scale(.97)}
+  .btn-primary{background:linear-gradient(90deg,var(--cyan),#5df6f0);color:#0B0D12}
+  .btn-pink{background:linear-gradient(90deg,var(--pink),#ff5c7c);color:#fff}
+  .btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
+  .btn-sm{padding:7px 14px;font-size:13px;margin-top:0}
+
+  .ampel{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:12px 14px;
+    border-radius:10px;
+    margin-top:14px;
+    font-weight:600;
+    font-size:14px;
+  }
+  .ampel .dot{width:14px;height:14px;border-radius:50%;flex-shrink:0}
+  .ampel.gut{background:rgba(37,244,238,.08);border:1px solid rgba(37,244,238,.35)}
+  .ampel.gut .dot{background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+  .ampel.mittel{background:rgba(255,176,32,.08);border:1px solid rgba(255,176,32,.35)}
+  .ampel.mittel .dot{background:var(--amber)}
+  .ampel.schlecht{background:rgba(254,44,85,.08);border:1px solid rgba(254,44,85,.35)}
+  .ampel.schlecht .dot{background:var(--pink)}
+  .ampel small{display:block;font-weight:400;color:var(--muted);margin-top:2px}
+
+  .produkt{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    padding:14px 16px;
+    background:var(--surface2);
+    border:1px solid var(--line);
+    border-radius:12px;
+    margin-bottom:10px;
+    flex-wrap:wrap;
+  }
+  .produkt .info{flex:1;min-width:200px}
+  .produkt .name{font-weight:700}
+  .produkt .meta{font-size:13px;color:var(--muted);margin-top:2px}
+  .badge{
+    display:inline-block;
+    font-size:12px;
+    font-weight:700;
+    padding:3px 10px;
+    border-radius:999px;
+    margin-left:8px;
+    vertical-align:middle;
+  }
+  .badge.gut{background:rgba(37,244,238,.15);color:var(--cyan)}
+  .badge.mittel{background:rgba(255,176,32,.15);color:var(--amber)}
+  .badge.schlecht{background:rgba(254,44,85,.15);color:var(--pink)}
+
+  .skript-output{
+    background:var(--surface2);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:18px;
+    margin-top:16px;
+    white-space:pre-wrap;
+    font-size:15px;
+    line-height:1.7;
+  }
+  .skript-output .abschnitt{
+    font-family:'Unbounded',sans-serif;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    color:var(--pink);
+    display:block;
+    margin:14px 0 4px;
+  }
+  .skript-output .abschnitt:first-child{margin-top:0}
+  .skript-output .abschnitt.cyan{color:var(--cyan)}
+
+  .archiv-item{
+    background:var(--surface2);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:14px 16px;
+    margin-bottom:10px;
+  }
+  .archiv-item .kopf{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+  .archiv-item .titel{font-weight:700}
+  .archiv-item .datum{font-size:12px;color:var(--muted)}
+  .status-select{width:auto;padding:6px 10px;font-size:13px;border-radius:8px}
+  .archiv-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+  details summary{cursor:pointer;color:var(--muted);font-size:13px;margin-top:8px}
+  details .skript-output{margin-top:10px}
+
+  .hinweis{
+    background:rgba(254,44,85,.06);
+    border:1px solid rgba(254,44,85,.25);
+    border-radius:12px;
+    padding:14px 16px;
+    font-size:13px;
+    color:var(--muted);
+    margin-bottom:16px;
+  }
+  .hinweis strong{color:var(--text)}
+  .leer{color:var(--muted);text-align:center;padding:30px 10px;font-size:14px}
+  .toast{
+    position:fixed;
+    bottom:24px;
+    left:50%;
+    transform:translateX(-50%);
+    background:var(--cyan);
+    color:#0B0D12;
+    font-weight:700;
+    padding:12px 24px;
+    border-radius:999px;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .25s;
+    z-index:100;
+  }
+  .toast.show{opacity:1}
+  footer{
+    text-align:center;
+    color:var(--muted);
+    font-size:12px;
+    padding:20px;
+    border-top:1px solid var(--line);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>TikPromo Studio</h1>
+  <p>Produkte bewerten &middot; Verkaufsskripte für Avatar-Videos generieren &middot; für HeyGen &amp; TikTok Shop</p>
+</header>
+
+<nav>
+  <button class="active" data-tab="produkte" onclick="zeigeTab('produkte')">📦 Produkte</button>
+  <button data-tab="generator" onclick="zeigeTab('generator')">🎬 Skript-Generator</button>
+  <button data-tab="archiv" onclick="zeigeTab('archiv')">✅ Meine Skripte</button>
+</nav>
+
+<main>
+
+<!-- ============ TAB: PRODUKTE ============ -->
+<section id="tab-produkte" class="active">
+  <div class="card">
+    <h2>Neues Produkt bewerten</h2>
+    <label for="pName">Produktname</label>
+    <input id="pName" type="text" placeholder="z. B. Gemüseschneider 14-in-1">
+    <div class="row">
+      <div>
+        <label for="pPreis">Preis (€)</label>
+        <input id="pPreis" type="number" step="0.01" min="0" placeholder="29,99">
+      </div>
+      <div>
+        <label for="pProvision">Provision (%)</label>
+        <input id="pProvision" type="number" step="0.1" min="0" placeholder="15">
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label for="pKategorie">Kategorie</label>
+        <select id="pKategorie">
+          <option>Küche &amp; Haushalt</option>
+          <option>Beauty &amp; Pflege</option>
+          <option>Gadgets &amp; Technik</option>
+          <option>Fitness &amp; Gesundheit</option>
+          <option>Mode &amp; Accessoires</option>
+          <option>Haustiere</option>
+          <option>Sonstiges</option>
+        </select>
+      </div>
+      <div>
+        <label for="pZielgruppe">Zielgruppe (kurz)</label>
+        <input id="pZielgruppe" type="text" placeholder="z. B. alle, die wenig Zeit zum Kochen haben">
+      </div>
+    </div>
+    <label for="pVorteile">Die 3 stärksten Vorteile (einer pro Zeile)</label>
+    <textarea id="pVorteile" placeholder="spart 20 Minuten pro Mahlzeit&#10;spülmaschinenfest&#10;ersetzt 5 andere Küchengeräte"></textarea>
+
+    <div id="ampelBox"></div>
+
+    <button class="btn btn-primary" onclick="produktSpeichern()">Produkt bewerten &amp; speichern</button>
+  </div>
+
+  <div class="card">
+    <h2>Meine Produktliste</h2>
+    <div id="produktListe"></div>
+  </div>
+</section>
+
+<!-- ============ TAB: GENERATOR ============ -->
+<section id="tab-generator">
+  <div class="hinweis">
+    <strong>Denk dran:</strong> Beim Hochladen auf TikTok das Video als KI-generiert kennzeichnen (Pflicht) und den Produktlink aus dem Affiliate-Center anhängen.
+  </div>
+  <div class="card">
+    <h2>Skript erstellen</h2>
+    <label for="gProdukt">Produkt auswählen</label>
+    <select id="gProdukt"></select>
+    <div class="row">
+      <div>
+        <label for="gStil">Skript-Stil</label>
+        <select id="gStil">
+          <option value="problem">Problem &amp; Lösung</option>
+          <option value="gruende">Top-3-Gründe</option>
+          <option value="story">Kurze Story</option>
+          <option value="frage">Frage-Hook</option>
+          <option value="geheimtipp">Geheimtipp</option>
+        </select>
+      </div>
+      <div>
+        <label for="gLaenge">Videolänge</label>
+        <select id="gLaenge">
+          <option value="30">ca. 30 Sekunden</option>
+          <option value="45" selected>ca. 45 Sekunden</option>
+          <option value="60">ca. 60 Sekunden</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn btn-pink" onclick="skriptGenerieren()">🎬 Skript generieren</button>
+    <button class="btn btn-ghost" onclick="skriptGenerieren()" title="Erzeugt eine neue Variante">🔄 Neue Variante</button>
+
+    <div id="skriptBox"></div>
+  </div>
+</section>
+
+<!-- ============ TAB: ARCHIV ============ -->
+<section id="tab-archiv">
+  <div class="card">
+    <h2>Meine Skripte &amp; Video-Status</h2>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:14px">Für deinen Produktionstag: Skript kopieren → in HeyGen einfügen → Video runterladen → in TikTok Studio einplanen → Status umstellen.</p>
+    <div id="archivListe"></div>
+  </div>
+</section>
+
+</main>
+
+<div class="toast" id="toast">Kopiert ✔</div>
+
+<footer>TikPromo Studio &middot; privates Arbeitstool &middot; Daten werden nur lokal in deinem Browser gespeichert</footer>
+
+<script>
+/* ---------- Sicherer Speicher (localStorage mit Fallback) ---------- */
+const memStore = {};
+function speichern(key, wert){
+  try{ localStorage.setItem(key, JSON.stringify(wert)); }
+  catch(e){ memStore[key] = JSON.stringify(wert); }
+}
+function laden(key, fallback){
+  try{
+    const v = localStorage.getItem(key);
+    if(v !== null) return JSON.parse(v);
+  }catch(e){
+    if(memStore[key]) return JSON.parse(memStore[key]);
+  }
+  return fallback;
+}
+
+let produkte = laden('tikpromo_produkte', []);
+let skripte  = laden('tikpromo_skripte', []);
+
+/* ---------- Tabs ---------- */
+function zeigeTab(name){
+  document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  document.querySelector('nav button[data-tab="'+name+'"]').classList.add('active');
+  if(name==='generator') produktDropdownFuellen();
+  if(name==='archiv') archivRendern();
+}
+
+/* ---------- Produktbewertung (Ampel) ---------- */
+function bewerten(preis, provProzent){
+  const provEuro = preis * provProzent / 100;
+  const gruende = [];
+  let punkte = 0;
+
+  if(preis >= 20 && preis <= 60){ punkte += 2; }
+  else if(preis > 60 && preis <= 100){ punkte += 1; gruende.push('Preis über 60 € – auf TikTok wird eher spontan gekauft'); }
+  else if(preis < 20){ punkte += 1; gruende.push('Preis unter 20 € – Provision pro Verkauf fällt klein aus'); }
+  else { gruende.push('Preis über 100 € – schwer für Spontankäufe'); }
+
+  if(provProzent >= 15){ punkte += 2; }
+  else if(provProzent >= 10){ punkte += 1; }
+  else { gruende.push('Provision unter 10 % – lohnt sich kaum'); }
+
+  if(provEuro >= 5){ punkte += 2; }
+  else if(provEuro >= 3){ punkte += 1; }
+  else { gruende.push('Weniger als 3 € pro Verkauf'); }
+
+  let stufe, text;
+  if(punkte >= 5){ stufe='gut'; text='Top-Produkt – lohnt sich!'; }
+  else if(punkte >= 3){ stufe='mittel'; text='Okay – testen, aber beobachten'; }
+  else { stufe='schlecht'; text='Finger weg – such lieber weiter'; }
+
+  return { stufe, text, provEuro, gruende };
+}
+
+function ampelAnzeigen(){
+  const preis = parseFloat(document.getElementById('pPreis').value);
+  const prov  = parseFloat(document.getElementById('pProvision').value);
+  const box = document.getElementById('ampelBox');
+  if(isNaN(preis) || isNaN(prov)){ box.innerHTML=''; return null; }
+  const b = bewerten(preis, prov);
+  box.innerHTML = `
+    <div class="ampel ${b.stufe}">
+      <span class="dot"></span>
+      <span>${b.text} &middot; ${b.provEuro.toFixed(2).replace('.',',')} € Provision pro Verkauf
+        ${b.gruende.length ? '<small>'+b.gruende.join(' · ')+'</small>' : ''}
+      </span>
+    </div>`;
+  return b;
+}
+document.getElementById('pPreis').addEventListener('input', ampelAnzeigen);
+document.getElementById('pProvision').addEventListener('input', ampelAnzeigen);
+
+/* ---------- Produkt speichern / Liste ---------- */
+function produktSpeichern(){
+  const name = document.getElementById('pName').value.trim();
+  const preis = parseFloat(document.getElementById('pPreis').value);
+  const prov = parseFloat(document.getElementById('pProvision').value);
+  const kategorie = document.getElementById('pKategorie').value;
+  const zielgruppe = document.getElementById('pZielgruppe').value.trim();
+  const vorteile = document.getElementById('pVorteile').value.split('\n').map(v=>v.trim()).filter(v=>v);
+
+  if(!name){ alert('Bitte einen Produktnamen eingeben.'); return; }
+  if(isNaN(preis) || isNaN(prov)){ alert('Bitte Preis und Provision eingeben.'); return; }
+  if(vorteile.length < 1){ alert('Bitte mindestens einen Vorteil eingeben.'); return; }
+
+  const b = bewerten(preis, prov);
+  produkte.push({ id: Date.now(), name, preis, prov, kategorie, zielgruppe, vorteile, stufe: b.stufe, provEuro: b.provEuro });
+  speichern('tikpromo_produkte', produkte);
+  produktListeRendern();
+
+  document.getElementById('pName').value='';
+  document.getElementById('pPreis').value='';
+  document.getElementById('pProvision').value='';
+  document.getElementById('pZielgruppe').value='';
+  document.getElementById('pVorteile').value='';
+  document.getElementById('ampelBox').innerHTML='';
+  toast('Produkt gespeichert ✔');
+}
+
+function produktListeRendern(){
+  const box = document.getElementById('produktListe');
+  if(produkte.length===0){
+    box.innerHTML = '<div class="leer">Noch keine Produkte. Such dir im TikTok-Affiliate-Center welche raus und trag sie hier ein.</div>';
+    return;
+  }
+  const labels = {gut:'Top', mittel:'Okay', schlecht:'Finger weg'};
+  box.innerHTML = produkte.map(p=>`
+    <div class="produkt">
+      <div class="info">
+        <span class="name">${esc(p.name)}</span>
+        <span class="badge ${p.stufe}">${labels[p.stufe]}</span>
+        <div class="meta">${p.preis.toFixed(2).replace('.',',')} € &middot; ${p.prov}% = ${p.provEuro.toFixed(2).replace('.',',')} € pro Verkauf &middot; ${esc(p.kategorie)}</div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary btn-sm" onclick="zumGenerator(${p.id})">Skript →</button>
+        <button class="btn btn-ghost btn-sm" onclick="produktLoeschen(${p.id})">🗑</button>
+      </div>
+    </div>`).join('');
+}
+
+function produktLoeschen(id){
+  if(!confirm('Produkt wirklich löschen?')) return;
+  produkte = produkte.filter(p=>p.id!==id);
+  speichern('tikpromo_produkte', produkte);
+  produktListeRendern();
+}
+
+function zumGenerator(id){
+  zeigeTab('generator');
+  document.getElementById('gProdukt').value = id;
+}
+
+/* ---------- Skript-Generator ---------- */
+function produktDropdownFuellen(){
+  const sel = document.getElementById('gProdukt');
+  if(produkte.length===0){
+    sel.innerHTML = '<option value="">– erst ein Produkt anlegen –</option>';
+    return;
+  }
+  sel.innerHTML = produkte.map(p=>`<option value="${p.id}">${esc(p.name)} (${p.preis.toFixed(2).replace('.',',')} €)</option>`).join('');
+}
+
+function zufall(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+const hooks = {
+  problem: [
+    'Stopp mal kurz – kennst du das auch? {problem}',
+    'Ganz ehrlich: {problem} Das hat mich so genervt.',
+    'Wenn dich {problemKurz} auch nervt, bleib die nächsten 30 Sekunden dran.',
+    'Ich dachte immer, {problemKurz} gehört einfach dazu. Falsch gedacht.'
+  ],
+  gruende: [
+    'Drei Gründe, warum gerade alle über {name} reden.',
+    'Ich gebe dir jetzt 3 Gründe, warum sich {name} lohnt – Nummer 3 hat mich überzeugt.',
+    'Bevor du weiterscrollst: 3 Dinge, die {name} besser macht als alles, was du kennst.'
+  ],
+  story: [
+    'Letzte Woche ist mir was passiert, das musste ich euch zeigen.',
+    'Meine Freundin hat mir davon erzählt – ich war erst skeptisch.',
+    'Ich hab das hier eigentlich nur aus Neugier bestellt. Und jetzt?'
+  ],
+  frage: [
+    'Mal ehrlich: Wie viel Zeit verlierst du jede Woche mit {problemKurz}?',
+    'Wusstest du, dass es dafür längst eine Lösung gibt?',
+    'Warum macht das eigentlich nicht jeder so?'
+  ],
+  geheimtipp: [
+    'Okay, das hier ist noch ein echter Geheimtipp – aber nicht mehr lange.',
+    'Psst – das hier kennt in Deutschland noch fast niemand.',
+    'Ich zeig dir jetzt was, das gerade erst auf TikTok Shop gelandet ist.'
+  ]
+};
+
+const ctas = [
+  'Wenn du es ausprobieren willst: Tipp einfach auf den orangenen Warenkorb hier im Video – da findest du {name} direkt. Aber warte nicht zu lange, sowas ist schnell weg.',
+  'Den Link findest du im orangenen Warenkorb unten im Video. Für {preis} € machst du da nichts falsch – schau es dir an!',
+  'Tipp auf den Warenkorb im Video und schau dir {name} selbst an. Und folge mir für mehr Produkte, die wirklich was taugen!',
+  'Alles Weitere findest du über den Warenkorb hier im Video. Und schreib mir in die Kommentare, wie es bei dir funktioniert!'
+];
+
+function skriptGenerieren(){
+  const pid = parseInt(document.getElementById('gProdukt').value);
+  const p = produkte.find(x=>x.id===pid);
+  if(!p){ alert('Bitte erst ein Produkt anlegen und auswählen.'); return; }
+
+  const stil = document.getElementById('gStil').value;
+  const laenge = parseInt(document.getElementById('gLaenge').value);
+  const v = p.vorteile;
+  const v1 = v[0] || 'es funktioniert einfach';
+  const v2 = v[1] || v1;
+  const v3 = v[2] || v2;
+  const ziel = p.zielgruppe || 'alle, die sich das Leben leichter machen wollen';
+  const preisTxt = p.preis.toFixed(2).replace('.',',');
+
+  const problem = `Du gibst Geld für Sachen aus, die dann doch nur in der Schublade landen – und das Eigentliche dauert trotzdem ewig.`;
+  const problemKurz = stil==='problem' || stil==='frage' ? `dieses ständige Problem in der Kategorie ${p.kategorie}` : '';
+
+  let hook = zufall(hooks[stil])
+    .replaceAll('{name}', p.name)
+    .replaceAll('{problem}', problem)
+    .replaceAll('{problemKurz}', problemKurz || 'das');
+
+  let haupt = '';
+  if(stil==='gruende'){
+    haupt = `Grund eins: ${v1}. Das allein ist es schon wert.\nGrund zwei: ${v2}. Ehrlich – das macht im Alltag den Unterschied.\nUnd Grund drei, mein Favorit: ${v3}.`;
+    if(laenge>=45) haupt += `\nUnd das Beste: ${p.name} kostet gerade nur ${preisTxt} € – das ist weniger, als viele für Sachen ausgeben, die sie nie benutzen.`;
+    if(laenge>=60) haupt += `\nGerade wenn du zu ${ziel} gehörst, wirst du dich fragen, warum du das nicht schon früher hattest.`;
+  } else if(stil==='story'){
+    haupt = `Ich hab mir ${p.name} geholt – und was soll ich sagen: ${v1}. Damit hatte ich nicht gerechnet.`;
+    if(laenge>=45) haupt += `\nDazu kommt noch: ${v2}. Und genau das war für mich der Punkt, wo ich dachte – okay, das behalte ich.`;
+    if(laenge>=60) haupt += `\nUnd falls du dich fragst, ob das was für dich ist: Wenn du zu ${ziel} gehörst, dann definitiv. Außerdem: ${v3}.`;
+    haupt += `\nFür ${preisTxt} € ehrlich gesagt ein No-Brainer.`;
+  } else if(stil==='frage'){
+    haupt = `Die Antwort heißt ${p.name}. Der wichtigste Punkt: ${v1}.`;
+    if(laenge>=45) haupt += `\nDazu kommt: ${v2}. Genau das macht es für ${ziel} so praktisch.`;
+    if(laenge>=60) haupt += `\nUnd als kleines Extra obendrauf: ${v3}. Das bekommst du gerade für ${preisTxt} €.`;
+    else haupt += `\nUnd das für gerade mal ${preisTxt} €.`;
+  } else if(stil==='geheimtipp'){
+    haupt = `Es geht um ${p.name}. Klingt erstmal unscheinbar – aber: ${v1}.`;
+    if(laenge>=45) haupt += `\nUnd es wird noch besser: ${v2}. Deshalb geht das Ding in den USA gerade durch die Decke.`;
+    if(laenge>=60) haupt += `\nBesonders für ${ziel} ist das ein echter Gamechanger. Oh, und: ${v3}.`;
+    haupt += `\nAktuell bekommst du es für ${preisTxt} € – bevor es alle kennen.`;
+  } else { /* problem */
+    haupt = `Genau dafür gibt es jetzt ${p.name}. Der Unterschied: ${v1}.`;
+    if(laenge>=45) haupt += `\nUnd es kann noch mehr: ${v2}. Gerade für ${ziel} ist das Gold wert.`;
+    if(laenge>=60) haupt += `\nWas mich am Ende überzeugt hat: ${v3}. Alles zusammen für ${preisTxt} € – das rechnet sich schnell.`;
+    else haupt += `\nUnd das Ganze für nur ${preisTxt} €.`;
+  }
+
+  const cta = zufall(ctas)
+    .replaceAll('{name}', p.name)
+    .replaceAll('{preis}', preisTxt);
+
+  const komplett = hook + '\n\n' + haupt + '\n\n' + cta;
+
+  document.getElementById('skriptBox').innerHTML = `
+    <div class="skript-output" id="skriptText">
+      <span class="abschnitt cyan">Hook (erste 3 Sekunden)</span>${esc(hook)}
+      <span class="abschnitt">Hauptteil</span>${esc(haupt)}
+      <span class="abschnitt cyan">Call-to-Action</span>${esc(cta)}
+    </div>
+    <button class="btn btn-primary" onclick="kopieren(\`${komplett.replace(/`/g,'\\`').replace(/\$/g,'\\$')}\`)">📋 Für HeyGen kopieren</button>
+    <button class="btn btn-ghost" onclick="skriptSpeichern(${p.id}, \`${komplett.replace(/`/g,'\\`').replace(/\$/g,'\\$')}\`, '${stil}')">💾 In „Meine Skripte" speichern</button>`;
+}
+
+function skriptSpeichern(pid, text, stil){
+  const p = produkte.find(x=>x.id===pid);
+  const stilNamen = {problem:'Problem & Lösung', gruende:'Top-3-Gründe', story:'Story', frage:'Frage-Hook', geheimtipp:'Geheimtipp'};
+  skripte.unshift({
+    id: Date.now(),
+    produkt: p ? p.name : 'Unbekannt',
+    stil: stilNamen[stil] || stil,
+    text,
+    status: 'skript',
+    datum: new Date().toLocaleDateString('de-DE')
+  });
+  speichern('tikpromo_skripte', skripte);
+  toast('Skript gespeichert ✔');
+}
+
+/* ---------- Archiv ---------- */
+function archivRendern(){
+  const box = document.getElementById('archivListe');
+  if(skripte.length===0){
+    box.innerHTML = '<div class="leer">Noch keine gespeicherten Skripte. Generiere eins im Skript-Generator und speichere es hier ab.</div>';
+    return;
+  }
+  box.innerHTML = skripte.map(s=>`
+    <div class="archiv-item">
+      <div class="kopf">
+        <div>
+          <span class="titel">${esc(s.produkt)}</span>
+          <span class="datum"> &middot; ${esc(s.stil)} &middot; ${s.datum}</span>
+        </div>
+        <select class="status-select" onchange="statusAendern(${s.id}, this.value)">
+          <option value="skript" ${s.status==='skript'?'selected':''}>📝 Skript erstellt</option>
+          <option value="video" ${s.status==='video'?'selected':''}>🎬 Video fertig</option>
+          <option value="geplant" ${s.status==='geplant'?'selected':''}>📅 In TikTok eingeplant</option>
+          <option value="online" ${s.status==='online'?'selected':''}>✅ Online</option>
+        </select>
+      </div>
+      <details>
+        <summary>Skript anzeigen</summary>
+        <div class="skript-output">${esc(s.text)}</div>
+      </details>
+      <div class="archiv-actions">
+        <button class="btn btn-primary btn-sm" onclick="kopieren(skripte.find(x=>x.id===${s.id}).text)">📋 Kopieren</button>
+        <button class="btn btn-ghost btn-sm" onclick="skriptLoeschen(${s.id})">🗑 Löschen</button>
+      </div>
+    </div>`).join('');
+}
+
+function statusAendern(id, status){
+  const s = skripte.find(x=>x.id===id);
+  if(s){ s.status = status; speichern('tikpromo_skripte', skripte); }
+}
+
+function skriptLoeschen(id){
+  if(!confirm('Skript wirklich löschen?')) return;
+  skripte = skripte.filter(s=>s.id!==id);
+  speichern('tikpromo_skripte', skripte);
+  archivRendern();
+}
+
+/* ---------- Helfer ---------- */
+function kopieren(text){
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(()=>toast('Kopiert ✔')).catch(()=>fallbackKopieren(text));
+  } else { fallbackKopieren(text); }
+}
+function fallbackKopieren(text){
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  document.body.appendChild(ta);
+  ta.select();
+  try{ document.execCommand('copy'); toast('Kopiert ✔'); }catch(e){ alert('Kopieren nicht möglich – bitte manuell markieren.'); }
+  document.body.removeChild(ta);
+}
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 1800);
+}
+function esc(str){
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* ---------- Start ---------- */
+produktListeRendern();
+</script>
+</body>
+</html>

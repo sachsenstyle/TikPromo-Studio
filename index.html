@@ -629,30 +629,43 @@ function zufall(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
 
 const hooks = {
   problem: [
-    'Stopp mal kurz – kennst du das auch? {problem}',
-    'Ganz ehrlich: {problem} Das hat mich so genervt.',
-    'Wenn dich {problemKurz} auch nervt, bleib die nächsten 30 Sekunden dran.',
-    'Ich dachte immer, {problemKurz} gehört einfach dazu. Falsch gedacht.'
+    'Stopp mal kurz – kennst du das? {gegenteil}',
+    'Ganz ehrlich: {gegenteil} Das nervt einfach.',
+    'Wenn du zu {ziel} gehörst, bleib die nächsten Sekunden dran.',
+    'Ich dachte immer, {gegenteil} gehört einfach dazu. Falsch gedacht.',
+    'Kennst du das – {gegenteil} Genau deshalb gibt es jetzt eine Lösung.',
+    'Die meisten aus {ziel} kennen dieses eine Problem: {gegenteil}',
+    'Bevor du weiterscrollst: Das hier löst ein Problem, das {ziel} richtig gut kennt.'
   ],
   gruende: [
     'Drei Gründe, warum gerade alle über {name} reden.',
     'Ich gebe dir jetzt 3 Gründe, warum sich {name} lohnt – Nummer 3 hat mich überzeugt.',
-    'Bevor du weiterscrollst: 3 Dinge, die {name} besser macht als alles, was du kennst.'
+    'Bevor du weiterscrollst: 3 Dinge, die {name} besser macht als alles, was du kennst.',
+    'Für {ziel} gibt es jetzt 3 gute Gründe, sich {name} anzuschauen.',
+    '{v1} – und das ist nur einer von drei Gründen für {name}.',
+    'Drei Dinge, die ich an {name} richtig gut finde – kurz und ehrlich.'
   ],
   story: [
     'Letzte Woche ist mir was passiert, das musste ich euch zeigen.',
     'Meine Freundin hat mir davon erzählt – ich war erst skeptisch.',
-    'Ich hab das hier eigentlich nur aus Neugier bestellt. Und jetzt?'
+    'Ich hab das hier eigentlich nur aus Neugier ausprobiert. Und jetzt?',
+    'Ich hab lange gezögert, bis ich {name} endlich ausprobiert habe.',
+    'Ehrlich gesagt hab ich nicht viel erwartet, als ich mit {name} angefangen habe.',
+    'So richtig überzeugt hat mich das erst, als ich gemerkt habe: {v1}.'
   ],
   frage: [
-    'Mal ehrlich: Wie viel Zeit verlierst du jede Woche mit {problemKurz}?',
+    'Mal ehrlich: Wie oft ärgerst du dich über {gegenteil}',
     'Wusstest du, dass es dafür längst eine Lösung gibt?',
-    'Warum macht das eigentlich nicht jeder so?'
+    'Warum macht das eigentlich nicht jeder so?',
+    'Was würdest du machen, wenn {v1} einfach dazugehören würde?',
+    'Kennst du jemanden aus {ziel}, dem das hier nicht helfen würde?'
   ],
   geheimtipp: [
     'Okay, das hier ist noch ein echter Geheimtipp – aber nicht mehr lange.',
-    'Psst – das hier kennt in Deutschland noch fast niemand.',
-    'Ich zeig dir jetzt was, das gerade erst auf TikTok Shop gelandet ist.'
+    'Psst – das hier kennt noch fast niemand.',
+    'Ich zeig dir jetzt was, das gerade erst am Start ist.',
+    'Für {ziel} ist das hier noch ein echter Insider-Tipp.',
+    'Das hier sollte eigentlich noch niemand wissen: {v1}.'
   ]
 };
 
@@ -752,13 +765,13 @@ function skriptGenerieren(){
   const ziel = p.zielgruppe || 'alle, die sich das Leben leichter machen wollen';
   const preisTxt = p.preis.toFixed(2).replace('.',',');
 
-  const problem = `Du gibst Geld für Sachen aus, die dann doch nur in der Schublade landen – und das Eigentliche dauert trotzdem ewig.`;
-  const problemKurz = stil==='problem' || stil==='frage' ? `dieses ständige Problem in der Kategorie ${p.kategorie}` : '';
+  const gegenteil = `dass man sich mit ${p.kategorie==='Sonstiges' ? 'sowas' : p.kategorie} lange rumärgert, obwohl es auch einfach ginge.`;
 
   let hook = zufall(hooks[stil])
     .replaceAll('{name}', p.name)
-    .replaceAll('{problem}', problem)
-    .replaceAll('{problemKurz}', problemKurz || 'das');
+    .replaceAll('{gegenteil}', gegenteil)
+    .replaceAll('{ziel}', ziel)
+    .replaceAll('{v1}', v1);
 
   const typ = p.typ || 'affiliate';
   let haupt = '';

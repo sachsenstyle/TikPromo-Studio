@@ -273,6 +273,13 @@
 <section id="tab-produkte" class="active">
   <div class="card">
     <h2>Neues Produkt bewerten</h2>
+    <label for="pTyp">Was möchtest du bewerben?</label>
+    <select id="pTyp" onchange="typWechsel()">
+      <option value="buch">📚 Mein Buch (Amazon)</option>
+      <option value="tool">🛠️ Mein Tool / digitales Produkt (Gumroad)</option>
+      <option value="freebie">🎁 Mein Freebie / meine Landingpage</option>
+      <option value="affiliate">🛒 TikTok-Shop-Affiliate-Produkt</option>
+    </select>
     <label for="pName">Produktname</label>
     <input id="pName" type="text" placeholder="z. B. Gemüseschneider 14-in-1">
     <div class="row">
@@ -280,7 +287,7 @@
         <label for="pPreis">Preis (€)</label>
         <input id="pPreis" type="number" step="0.01" min="0" placeholder="29,99">
       </div>
-      <div>
+      <div id="provisionFeld">
         <label for="pProvision">Provision (%)</label>
         <input id="pProvision" type="number" step="0.1" min="0" placeholder="15">
       </div>
@@ -288,15 +295,7 @@
     <div class="row">
       <div>
         <label for="pKategorie">Kategorie</label>
-        <select id="pKategorie">
-          <option>Küche &amp; Haushalt</option>
-          <option>Beauty &amp; Pflege</option>
-          <option>Gadgets &amp; Technik</option>
-          <option>Fitness &amp; Gesundheit</option>
-          <option>Mode &amp; Accessoires</option>
-          <option>Haustiere</option>
-          <option>Sonstiges</option>
-        </select>
+        <select id="pKategorie"></select>
       </div>
       <div>
         <label for="pZielgruppe">Zielgruppe (kurz)</label>
@@ -305,6 +304,33 @@
     </div>
     <label for="pVorteile">Die 3 stärksten Vorteile (einer pro Zeile)</label>
     <textarea id="pVorteile" placeholder="spart 20 Minuten pro Mahlzeit&#10;spülmaschinenfest&#10;ersetzt 5 andere Küchengeräte"></textarea>
+
+    <div id="testerBlock">
+    <h3 style="margin-top:20px">🔍 Produkt-Tester – 5 schnelle Fragen</h3>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:4px">Beantworte die Fragen mit dem Marktplatz vor Augen – die Ampel rechnet sie mit ein.</p>
+    <div class="row">
+      <div>
+        <label for="t1">Kann man es im Video gut zeigen oder erklären?</label>
+        <select id="t1" class="tester"><option value="">– keine Angabe –</option><option value="ja">Ja</option><option value="nein">Nein</option></select>
+      </div>
+      <div>
+        <label for="t2">Löst es ein Alltagsproblem oder hat einen Wow-Effekt?</label>
+        <select id="t2" class="tester"><option value="">– keine Angabe –</option><option value="ja">Ja</option><option value="nein">Nein</option></select>
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label for="t3">Hat es im Marktplatz schon gute Verkäufe &amp; Bewertungen?</label>
+        <select id="t3" class="tester"><option value="">– keine Angabe –</option><option value="ja">Ja</option><option value="nein">Nein</option></select>
+      </div>
+      <div>
+        <label for="t4">Ist es das ganze Jahr über interessant (nicht nur saisonal)?</label>
+        <select id="t4" class="tester"><option value="">– keine Angabe –</option><option value="ja">Ja</option><option value="nein">Nein</option></select>
+      </div>
+    </div>
+    <label for="t5">Würdest du es selbst kaufen oder verschenken?</label>
+    <select id="t5" class="tester"><option value="">– keine Angabe –</option><option value="ja">Ja</option><option value="nein">Nein</option></select>
+    </div>
 
     <div id="ampelBox"></div>
 
@@ -326,6 +352,7 @@
     <h2>Skript erstellen</h2>
     <label for="gProdukt">Produkt auswählen</label>
     <select id="gProdukt"></select>
+    <p style="color:var(--muted);font-size:13px;margin-top:6px">Der Schluss des Skripts passt sich automatisch an: Buch → Amazon, Tool → Link in Bio, Freebie → gratis, Affiliate → Warenkorb.</p>
     <div class="row">
       <div>
         <label for="gStil">Skript-Stil</label>
@@ -398,8 +425,43 @@ function zeigeTab(name){
   if(name==='archiv') archivRendern();
 }
 
-/* ---------- Produktbewertung (Ampel) ---------- */
-function bewerten(preis, provProzent){
+/* ---------- Produkttyp & Kategorien ---------- */
+const kategorien = {
+  buch:      ['KI & Online-Business','Ratgeber & Sachbuch','Kinderbuch','Roman & Unterhaltung','Sonstiges'],
+  tool:      ['KI- & Content-Tool','Kalender & Planung','Marketing & Verkauf','Sonstiges'],
+  freebie:   ['Guide & Checkliste','Prompts & Vorlagen','Audio','Sonstiges'],
+  affiliate: ['Küche & Haushalt','Beauty & Pflege','Gadgets & Technik','Fitness & Gesundheit','Mode & Accessoires','Haustiere','Sonstiges']
+};
+const typLabels = { buch:'📚 Buch', tool:'🛠️ Tool', freebie:'🎁 Freebie', affiliate:'🛒 Affiliate' };
+
+function aktTyp(){ return document.getElementById('pTyp').value; }
+
+function typWechsel(){
+  const typ = aktTyp();
+  document.getElementById('provisionFeld').style.display = typ==='affiliate' ? '' : 'none';
+  document.getElementById('testerBlock').style.display   = typ==='affiliate' ? '' : 'none';
+  const sel = document.getElementById('pKategorie');
+  sel.innerHTML = kategorien[typ].map(k=>'<option>'+k+'</option>').join('');
+  ampelAnzeigen();
+}
+
+/* ---------- Produktbewertung (Ampel + Produkt-Tester) ---------- */
+const testerNeinGruende = [
+  'Schwer im Video zu zeigen oder zu erklären',
+  'Kein klares Problem und kein Wow-Effekt',
+  'Kaum Verkäufe oder schwache Bewertungen im Marktplatz',
+  'Nur saisonal interessant',
+  'Du würdest es selbst nicht kaufen – das merkt man dem Video an'
+];
+
+function testerAntworten(){
+  return ['t1','t2','t3','t4','t5'].map(id=>{
+    const el = document.getElementById(id);
+    return el ? el.value : '';
+  });
+}
+
+function bewerten(preis, provProzent, antworten){
   const provEuro = preis * provProzent / 100;
   const gruende = [];
   let punkte = 0;
@@ -417,20 +479,45 @@ function bewerten(preis, provProzent){
   else if(provEuro >= 3){ punkte += 1; }
   else { gruende.push('Weniger als 3 € pro Verkauf'); }
 
+  /* Produkt-Tester einrechnen */
+  let beantwortet = 0, testerPunkte = 0;
+  if(antworten){
+    antworten.forEach((a,i)=>{
+      if(a==='ja'){ testerPunkte++; beantwortet++; }
+      else if(a==='nein'){ beantwortet++; gruende.push(testerNeinGruende[i]); }
+    });
+  }
+
   let stufe, text;
-  if(punkte >= 5){ stufe='gut'; text='Top-Produkt – lohnt sich!'; }
-  else if(punkte >= 3){ stufe='mittel'; text='Okay – testen, aber beobachten'; }
-  else { stufe='schlecht'; text='Finger weg – such lieber weiter'; }
+  if(beantwortet >= 3){
+    /* Zahlen (max 6) + Tester (max 5) = max 11 */
+    const gesamt = punkte + testerPunkte;
+    if(gesamt >= 8){ stufe='gut'; text='Bewerben – Top-Produkt! (' + gesamt + '/11 Punkten)'; }
+    else if(gesamt >= 5){ stufe='mittel'; text='Kann man testen – aber beobachten (' + gesamt + '/11 Punkten)'; }
+    else { stufe='schlecht'; text='Nicht bewerben – such weiter (' + gesamt + '/11 Punkten)'; }
+  } else {
+    if(punkte >= 5){ stufe='gut'; text='Top-Produkt – lohnt sich!'; }
+    else if(punkte >= 3){ stufe='mittel'; text='Okay – testen, aber beobachten'; }
+    else { stufe='schlecht'; text='Finger weg – such lieber weiter'; }
+  }
 
   return { stufe, text, provEuro, gruende };
 }
 
 function ampelAnzeigen(){
+  const typ = aktTyp();
+  const box = document.getElementById('ampelBox');
+  if(typ!=='affiliate'){
+    const txt = typ==='freebie'
+      ? 'Dein Freebie – kostenlos für deine Liste. Jede Eintragung zahlt auf dein Business ein.'
+      : 'Dein eigenes Produkt – hier braucht es keine Ampel. Jeder Verkauf zahlt direkt auf dein Business ein.';
+    box.innerHTML = '<div class="ampel gut"><span class="dot"></span><span>'+txt+'</span></div>';
+    return null;
+  }
   const preis = parseFloat(document.getElementById('pPreis').value);
   const prov  = parseFloat(document.getElementById('pProvision').value);
-  const box = document.getElementById('ampelBox');
   if(isNaN(preis) || isNaN(prov)){ box.innerHTML=''; return null; }
-  const b = bewerten(preis, prov);
+  const b = bewerten(preis, prov, testerAntworten());
   box.innerHTML = `
     <div class="ampel ${b.stufe}">
       <span class="dot"></span>
@@ -442,22 +529,33 @@ function ampelAnzeigen(){
 }
 document.getElementById('pPreis').addEventListener('input', ampelAnzeigen);
 document.getElementById('pProvision').addEventListener('input', ampelAnzeigen);
+document.querySelectorAll('.tester').forEach(el=>el.addEventListener('change', ampelAnzeigen));
 
 /* ---------- Produkt speichern / Liste ---------- */
 function produktSpeichern(){
+  const typ = aktTyp();
   const name = document.getElementById('pName').value.trim();
-  const preis = parseFloat(document.getElementById('pPreis').value);
-  const prov = parseFloat(document.getElementById('pProvision').value);
+  let preis = parseFloat(document.getElementById('pPreis').value);
+  let prov = parseFloat(document.getElementById('pProvision').value);
   const kategorie = document.getElementById('pKategorie').value;
   const zielgruppe = document.getElementById('pZielgruppe').value.trim();
   const vorteile = document.getElementById('pVorteile').value.split('\n').map(v=>v.trim()).filter(v=>v);
 
   if(!name){ alert('Bitte einen Produktnamen eingeben.'); return; }
-  if(isNaN(preis) || isNaN(prov)){ alert('Bitte Preis und Provision eingeben.'); return; }
+  if(typ==='affiliate'){
+    if(isNaN(preis) || isNaN(prov)){ alert('Bitte Preis und Provision eingeben.'); return; }
+  } else {
+    if(isNaN(preis)) preis = 0;
+    prov = 0;
+  }
   if(vorteile.length < 1){ alert('Bitte mindestens einen Vorteil eingeben.'); return; }
 
-  const b = bewerten(preis, prov);
-  produkte.push({ id: Date.now(), name, preis, prov, kategorie, zielgruppe, vorteile, stufe: b.stufe, provEuro: b.provEuro });
+  let stufe = 'eigen', provEuro = 0;
+  if(typ==='affiliate'){
+    const b = bewerten(preis, prov, testerAntworten());
+    stufe = b.stufe; provEuro = b.provEuro;
+  }
+  produkte.push({ id: Date.now(), typ, name, preis, prov, kategorie, zielgruppe, vorteile, stufe, provEuro });
   speichern('tikpromo_produkte', produkte);
   produktListeRendern();
 
@@ -466,6 +564,7 @@ function produktSpeichern(){
   document.getElementById('pProvision').value='';
   document.getElementById('pZielgruppe').value='';
   document.getElementById('pVorteile').value='';
+  ['t1','t2','t3','t4','t5'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('ampelBox').innerHTML='';
   toast('Produkt gespeichert ✔');
 }
@@ -473,22 +572,31 @@ function produktSpeichern(){
 function produktListeRendern(){
   const box = document.getElementById('produktListe');
   if(produkte.length===0){
-    box.innerHTML = '<div class="leer">Noch keine Produkte. Such dir im TikTok-Affiliate-Center welche raus und trag sie hier ein.</div>';
+    box.innerHTML = '<div class="leer">Noch keine Produkte. Trag dein eigenes Buch, Tool oder Freebie ein – oder such dir im TikTok-Affiliate-Center Produkte raus.</div>';
     return;
   }
   const labels = {gut:'Top', mittel:'Okay', schlecht:'Finger weg'};
-  box.innerHTML = produkte.map(p=>`
+  box.innerHTML = produkte.map(p=>{
+    const typ = p.typ || 'affiliate';
+    const typBadge = '<span class="badge gut">'+typLabels[typ]+'</span>';
+    const ampelBadge = typ==='affiliate' && labels[p.stufe] ? '<span class="badge '+p.stufe+'">'+labels[p.stufe]+'</span>' : '';
+    const preisTxt = p.preis > 0 ? p.preis.toFixed(2).replace('.',',')+' €' : 'gratis';
+    const meta = typ==='affiliate'
+      ? preisTxt+' &middot; '+p.prov+'% = '+p.provEuro.toFixed(2).replace('.',',')+' € pro Verkauf &middot; '+esc(p.kategorie)
+      : preisTxt+' &middot; '+esc(p.kategorie);
+    return `
     <div class="produkt">
       <div class="info">
         <span class="name">${esc(p.name)}</span>
-        <span class="badge ${p.stufe}">${labels[p.stufe]}</span>
-        <div class="meta">${p.preis.toFixed(2).replace('.',',')} € &middot; ${p.prov}% = ${p.provEuro.toFixed(2).replace('.',',')} € pro Verkauf &middot; ${esc(p.kategorie)}</div>
+        ${typBadge}${ampelBadge}
+        <div class="meta">${meta}</div>
       </div>
       <div style="display:flex;gap:8px">
         <button class="btn btn-primary btn-sm" onclick="zumGenerator(${p.id})">Skript →</button>
         <button class="btn btn-ghost btn-sm" onclick="produktLoeschen(${p.id})">🗑</button>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 function produktLoeschen(id){
@@ -510,7 +618,11 @@ function produktDropdownFuellen(){
     sel.innerHTML = '<option value="">– erst ein Produkt anlegen –</option>';
     return;
   }
-  sel.innerHTML = produkte.map(p=>`<option value="${p.id}">${esc(p.name)} (${p.preis.toFixed(2).replace('.',',')} €)</option>`).join('');
+  sel.innerHTML = produkte.map(p=>{
+    const typ = p.typ || 'affiliate';
+    const preisTxt = p.preis > 0 ? p.preis.toFixed(2).replace('.',',')+' €' : 'gratis';
+    return `<option value="${p.id}">${typLabels[typ].split(' ')[0]} ${esc(p.name)} (${preisTxt})</option>`;
+  }).join('');
 }
 
 function zufall(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
@@ -551,6 +663,25 @@ const ctas = [
   'Alles Weitere findest du über den Warenkorb hier im Video. Und schreib mir in die Kommentare, wie es bei dir funktioniert!'
 ];
 
+const freebieCtas = [
+  'Und das Beste: Es kostet dich keinen Cent. Du findest {name} über den Link in meiner Bio – hol es dir gleich, bevor du es vergisst.',
+  'Den Gratis-Download findest du über den Link in meiner Bio. Kostet nichts, bringt viel – und folge mir für mehr solcher Tipps!',
+  'Hol dir {name} kostenlos über den Link in meiner Bio. Und schreib mir in die Kommentare, was du als Erstes damit machst!',
+  'Alles gratis über den Link in meiner Bio – kein Haken, keine Kosten. Und folge mir, damit du die nächsten Tipps nicht verpasst!'
+];
+
+const buchCtas = [
+  '„{name}" ist erhältlich bei Amazon – such einfach nach dem Titel oder nimm den Link in meiner Bio. Und folge mir für mehr davon!',
+  'Du findest „{name}" bei Amazon. Der schnellste Weg: der Link in meiner Bio. Schreib mir gern in die Kommentare, wie es dir gefällt!',
+  'Neugierig geworden? „{name}" gibt es bei Amazon – Link in meiner Bio. Und folge mir, wenn du mehr solche Tipps willst!'
+];
+
+const toolCtas = [
+  'Du bekommst {name} über den Link in meiner Bio – schau es dir an und leg direkt los!',
+  'Alle Infos zu {name} findest du über den Link in meiner Bio. Und schreib mir in die Kommentare, wenn du Fragen hast!',
+  'Hol dir {name} über den Link in meiner Bio – und folge mir für mehr Tools, die dir Arbeit abnehmen!'
+];
+
 function skriptGenerieren(){
   const pid = parseInt(document.getElementById('gProdukt').value);
   const p = produkte.find(x=>x.id===pid);
@@ -573,8 +704,13 @@ function skriptGenerieren(){
     .replaceAll('{problem}', problem)
     .replaceAll('{problemKurz}', problemKurz || 'das');
 
+  const typ = p.typ || 'affiliate';
   let haupt = '';
-  if(stil==='gruende'){
+  if(typ==='freebie'){
+    haupt = `Genau dafür habe ich etwas erstellt – komplett kostenlos: ${p.name}. Das Wichtigste darin: ${v1}.`;
+    if(laenge>=45) haupt += `\nAußerdem bekommst du: ${v2}. Gerade wenn du zu ${ziel} gehörst, wirst du das lieben.`;
+    if(laenge>=60) haupt += `\nUnd obendrauf gibt es noch: ${v3}. Alles gratis – ohne Haken, ohne Kleingedrucktes.`;
+  } else if(stil==='gruende'){
     haupt = `Grund eins: ${v1}. Das allein ist es schon wert.\nGrund zwei: ${v2}. Ehrlich – das macht im Alltag den Unterschied.\nUnd Grund drei, mein Favorit: ${v3}.`;
     if(laenge>=45) haupt += `\nUnd das Beste: ${p.name} kostet gerade nur ${preisTxt} € – das ist weniger, als viele für Sachen ausgeben, die sie nie benutzen.`;
     if(laenge>=60) haupt += `\nGerade wenn du zu ${ziel} gehörst, wirst du dich fragen, warum du das nicht schon früher hattest.`;
@@ -600,7 +736,8 @@ function skriptGenerieren(){
     else haupt += `\nUnd das Ganze für nur ${preisTxt} €.`;
   }
 
-  const cta = zufall(ctas)
+  const ctaPool = typ==='freebie' ? freebieCtas : typ==='buch' ? buchCtas : typ==='tool' ? toolCtas : ctas;
+  const cta = zufall(ctaPool)
     .replaceAll('{name}', p.name)
     .replaceAll('{preis}', preisTxt);
 
@@ -700,6 +837,7 @@ function esc(str){
 }
 
 /* ---------- Start ---------- */
+typWechsel();
 produktListeRendern();
 </script>
 </body>

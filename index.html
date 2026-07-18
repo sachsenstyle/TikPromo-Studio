@@ -1,4 +1,4 @@
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
 <meta charset="UTF-8">
@@ -711,14 +711,31 @@ function beitragErzeugen(p, typ){
             : typ==='freebie' ? 'Gratis über den Link in der Bio.'
             : 'Alle Infos über den Link in der Bio.';
   const werbung = typ==='affiliate' ? 'Werbung' : 'Werbung (in eigener Sache)';
+  const emojis = ['💡','✨','👀','🔥'];
+  const emoji = zufall(emojis);
   const aufhaenger = v1 ? v1.charAt(0).toUpperCase()+v1.slice(1) : p.name;
 
-  const tiktok = aufhaenger + ' 💡\n' + p.name + ': ' + ort + '\n' + werbung + '\n\n' + tags.join(' ');
+  const tiktok = aufhaenger + ' ' + emoji + '\n' + p.name + ': ' + ort + '\n' + werbung + '\n\n' + tags.join(' ');
 
   const ytTitel = (p.name + ' – ' + v1).slice(0, 95);
   const youtube = 'Titel:\n' + ytTitel + '\n\nBeschreibung:\n' + p.name + ' kurz erklärt: ' + p.vorteile.slice(0,3).join(', ') + '. ' + ort + '\n' + werbung + '\n\n#shorts ' + tags.slice(0,3).join(' ');
 
   return { tiktok, youtube };
+}
+
+function beitragNeuGenerieren(){
+  const akt = window._skriptAktuell;
+  if(!akt){ return; }
+  const p = produkte.find(x=>x.id===akt.pid);
+  if(!p) return;
+  const typ = p.typ || 'affiliate';
+  const beitrag = beitragErzeugen(p, typ);
+  window._beitraege[p.id] = beitrag;
+  akt.tiktok = beitrag.tiktok;
+  akt.youtube = beitrag.youtube;
+  document.querySelectorAll('#skriptBox .skript-output')[1].innerHTML = '<span class="abschnitt">📱 TikTok-Beitragstext</span>' + esc(beitrag.tiktok);
+  document.querySelectorAll('#skriptBox .skript-output')[2].innerHTML = '<span class="abschnitt cyan">▶️ YouTube Shorts – Titel &amp; Beschreibung</span>' + esc(beitrag.youtube);
+  toast('Beitragstexte neu gewürfelt ✔');
 }
 
 function skriptGenerieren(){
@@ -783,7 +800,9 @@ function skriptGenerieren(){
   const komplett = hook + '\n\n' + haupt + '\n\n' + cta;
 
   window._skriptAktuell = { pid: p.id, text: komplett, stil: stil };
-  const beitrag = beitragErzeugen(p, typ);
+  if(!window._beitraege) window._beitraege = {};
+  if(!window._beitraege[p.id]) window._beitraege[p.id] = beitragErzeugen(p, typ);
+  const beitrag = window._beitraege[p.id];
   window._skriptAktuell.tiktok = beitrag.tiktok;
   window._skriptAktuell.youtube = beitrag.youtube;
 
@@ -794,30 +813,35 @@ function skriptGenerieren(){
       <span class="abschnitt cyan">Call-to-Action</span>${esc(cta)}
     </div>
     <button class="btn btn-primary" onclick="kopieren(window._skriptAktuell.text)">📋 Für HeyGen kopieren</button>
-    <button class="btn btn-ghost" onclick="skriptSpeichern(window._skriptAktuell.pid, window._skriptAktuell.text, window._skriptAktuell.stil)">💾 In „Meine Skripte" speichern</button>
+    <button class="btn btn-ghost" onclick="skriptSpeichern()">💾 In „Meine Skripte" speichern</button>
     <div class="skript-output">
       <span class="abschnitt">📱 TikTok-Beitragstext</span>${esc(beitrag.tiktok)}
     </div>
     <button class="btn btn-primary" onclick="kopieren(window._skriptAktuell.tiktok)">📋 TikTok-Text kopieren</button>
+    <button class="btn btn-ghost" onclick="beitragNeuGenerieren()">🔄 Beitragstexte neu würfeln</button>
     <div class="skript-output">
       <span class="abschnitt cyan">▶️ YouTube Shorts – Titel &amp; Beschreibung</span>${esc(beitrag.youtube)}
     </div>
     <button class="btn btn-primary" onclick="kopieren(window._skriptAktuell.youtube)">📋 YouTube-Text kopieren</button>`;
 }
 
-function skriptSpeichern(pid, text, stil){
-  const p = produkte.find(x=>x.id===pid);
+function skriptSpeichern(){
+  const akt = window._skriptAktuell;
+  if(!akt){ alert('Bitte erst ein Skript generieren.'); return; }
+  const p = produkte.find(x=>x.id===akt.pid);
   const stilNamen = {problem:'Problem & Lösung', gruende:'Top-3-Gründe', story:'Story', frage:'Frage-Hook', geheimtipp:'Geheimtipp'};
   skripte.unshift({
     id: Date.now(),
     produkt: p ? p.name : 'Unbekannt',
-    stil: stilNamen[stil] || stil,
-    text,
+    stil: stilNamen[akt.stil] || akt.stil,
+    text: akt.text,
+    tiktok: akt.tiktok,
+    youtube: akt.youtube,
     status: 'skript',
     datum: new Date().toLocaleDateString('de-DE')
   });
   speichern('tikpromo_skripte', skripte);
-  toast('Skript gespeichert ✔');
+  toast('Skript + Beitragstexte gespeichert ✔');
 }
 
 /* ---------- Archiv ---------- */
@@ -845,8 +869,18 @@ function archivRendern(){
         <summary>Skript anzeigen</summary>
         <div class="skript-output">${esc(s.text)}</div>
       </details>
+      ${s.tiktok ? `<details>
+        <summary>📱 TikTok-Beitragstext anzeigen</summary>
+        <div class="skript-output">${esc(s.tiktok)}</div>
+      </details>` : ''}
+      ${s.youtube ? `<details>
+        <summary>▶️ YouTube-Text anzeigen</summary>
+        <div class="skript-output">${esc(s.youtube)}</div>
+      </details>` : ''}
       <div class="archiv-actions">
-        <button class="btn btn-primary btn-sm" onclick="kopieren(skripte.find(x=>x.id===${s.id}).text)">📋 Kopieren</button>
+        <button class="btn btn-primary btn-sm" onclick="kopieren(skripte.find(x=>x.id===${s.id}).text)">📋 Skript</button>
+        ${s.tiktok ? `<button class="btn btn-primary btn-sm" onclick="kopieren(skripte.find(x=>x.id===${s.id}).tiktok)">📋 TikTok</button>` : ''}
+        ${s.youtube ? `<button class="btn btn-primary btn-sm" onclick="kopieren(skripte.find(x=>x.id===${s.id}).youtube)">📋 YouTube</button>` : ''}
         <button class="btn btn-ghost btn-sm" onclick="skriptLoeschen(${s.id})">🗑 Löschen</button>
       </div>
     </div>`).join('');

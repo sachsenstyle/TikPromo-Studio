@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html lang="de">
 <head>
 <meta charset="UTF-8">
@@ -682,6 +682,45 @@ const toolCtas = [
   'Hol dir {name} über den Link in meiner Bio – und folge mir für mehr Tools, die dir Arbeit abnehmen!'
 ];
 
+function beitragErzeugen(p, typ){
+  const v1 = p.vorteile[0] || '';
+  const kat = p.kategorie || '';
+  let tags;
+  if(typ==='buch'){
+    tags = ['#buchtipp','#ki','#onlinebusiness','#geldverdienenonline','#affiliatemarketing','#fürdich'];
+    if(kat==='Kinderbuch') tags = ['#buchtipp','#kinderbuch','#vorlesen','#geschenkidee','#fürdich'];
+    if(kat==='Roman & Unterhaltung') tags = ['#buchtipp','#lesen','#booktok','#fürdich'];
+    if(kat==='Ratgeber & Sachbuch') tags = ['#buchtipp','#ratgeber','#weiterbildung','#fürdich'];
+  } else if(typ==='tool'){
+    tags = ['#kitools','#produktivität','#onlinebusiness','#contentcreator','#fürdich'];
+  } else if(typ==='freebie'){
+    tags = ['#gratis','#ki','#onlinegeldverdienen','#weiterbildung','#fürdich'];
+  } else {
+    const katTags = {
+      'Küche & Haushalt':['#küchenhelfer','#haushaltshacks'],
+      'Beauty & Pflege':['#beauty','#pflegetipps'],
+      'Gadgets & Technik':['#gadgets','#technik'],
+      'Fitness & Gesundheit':['#fitness','#gesundheit'],
+      'Mode & Accessoires':['#fashion','#style'],
+      'Haustiere':['#haustiere','#tierliebe']
+    };
+    tags = ['#tiktokshop', ...(katTags[kat]||['#empfehlung']), '#musthave','#fürdich'];
+  }
+  const ort = typ==='buch' ? 'Erhältlich bei Amazon – Link in der Bio.'
+            : typ==='affiliate' ? 'Direkt über den Warenkorb im Video bestellbar.'
+            : typ==='freebie' ? 'Gratis über den Link in der Bio.'
+            : 'Alle Infos über den Link in der Bio.';
+  const werbung = typ==='affiliate' ? 'Werbung' : 'Werbung (in eigener Sache)';
+  const aufhaenger = v1 ? v1.charAt(0).toUpperCase()+v1.slice(1) : p.name;
+
+  const tiktok = aufhaenger + ' 💡\n' + p.name + ': ' + ort + '\n' + werbung + '\n\n' + tags.join(' ');
+
+  const ytTitel = (p.name + ' – ' + v1).slice(0, 95);
+  const youtube = 'Titel:\n' + ytTitel + '\n\nBeschreibung:\n' + p.name + ' kurz erklärt: ' + p.vorteile.slice(0,3).join(', ') + '. ' + ort + '\n' + werbung + '\n\n#shorts ' + tags.slice(0,3).join(' ');
+
+  return { tiktok, youtube };
+}
+
 function skriptGenerieren(){
   const pid = parseInt(document.getElementById('gProdukt').value);
   const p = produkte.find(x=>x.id===pid);
@@ -744,6 +783,9 @@ function skriptGenerieren(){
   const komplett = hook + '\n\n' + haupt + '\n\n' + cta;
 
   window._skriptAktuell = { pid: p.id, text: komplett, stil: stil };
+  const beitrag = beitragErzeugen(p, typ);
+  window._skriptAktuell.tiktok = beitrag.tiktok;
+  window._skriptAktuell.youtube = beitrag.youtube;
 
   document.getElementById('skriptBox').innerHTML = `
     <div class="skript-output" id="skriptText">
@@ -752,7 +794,15 @@ function skriptGenerieren(){
       <span class="abschnitt cyan">Call-to-Action</span>${esc(cta)}
     </div>
     <button class="btn btn-primary" onclick="kopieren(window._skriptAktuell.text)">📋 Für HeyGen kopieren</button>
-    <button class="btn btn-ghost" onclick="skriptSpeichern(window._skriptAktuell.pid, window._skriptAktuell.text, window._skriptAktuell.stil)">💾 In „Meine Skripte" speichern</button>`;
+    <button class="btn btn-ghost" onclick="skriptSpeichern(window._skriptAktuell.pid, window._skriptAktuell.text, window._skriptAktuell.stil)">💾 In „Meine Skripte" speichern</button>
+    <div class="skript-output">
+      <span class="abschnitt">📱 TikTok-Beitragstext</span>${esc(beitrag.tiktok)}
+    </div>
+    <button class="btn btn-primary" onclick="kopieren(window._skriptAktuell.tiktok)">📋 TikTok-Text kopieren</button>
+    <div class="skript-output">
+      <span class="abschnitt cyan">▶️ YouTube Shorts – Titel &amp; Beschreibung</span>${esc(beitrag.youtube)}
+    </div>
+    <button class="btn btn-primary" onclick="kopieren(window._skriptAktuell.youtube)">📋 YouTube-Text kopieren</button>`;
 }
 
 function skriptSpeichern(pid, text, stil){

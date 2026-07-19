@@ -631,17 +631,17 @@ const hooks = {
   problem: [
     'Stopp mal kurz – kennst du das? {gegenteil}',
     'Ganz ehrlich: {gegenteil} Das nervt einfach.',
-    'Wenn du zu {ziel} gehörst, bleib die nächsten Sekunden dran.',
-    'Ich dachte immer, {gegenteil} gehört einfach dazu. Falsch gedacht.',
+    'Das hier ist für dich, wenn gilt: {ziel}',
+    'Ich dachte immer, sowas gehört einfach dazu. Falsch gedacht.',
     'Kennst du das – {gegenteil} Genau deshalb gibt es jetzt eine Lösung.',
-    'Die meisten aus {ziel} kennen dieses eine Problem: {gegenteil}',
-    'Bevor du weiterscrollst: Das hier löst ein Problem, das {ziel} richtig gut kennt.'
+    'Kurz gesagt, für wen das hier ist: {ziel}',
+    'Bevor du weiterscrollst: Das hier lohnt sich, wenn auf dich zutrifft: {ziel}'
   ],
   gruende: [
     'Drei Gründe, warum gerade alle über {name} reden.',
     'Ich gebe dir jetzt 3 Gründe, warum sich {name} lohnt – Nummer 3 hat mich überzeugt.',
     'Bevor du weiterscrollst: 3 Dinge, die {name} besser macht als alles, was du kennst.',
-    'Für {ziel} gibt es jetzt 3 gute Gründe, sich {name} anzuschauen.',
+    'Perfekt, wenn das hier zu dir passt: {ziel}. Dann gibt es jetzt 3 gute Gründe für {name}.',
     '{v1} – und das ist nur einer von drei Gründen für {name}.',
     'Drei Dinge, die ich an {name} richtig gut finde – kurz und ehrlich.'
   ],
@@ -654,17 +654,17 @@ const hooks = {
     'So richtig überzeugt hat mich das erst, als ich gemerkt habe: {v1}.'
   ],
   frage: [
-    'Mal ehrlich: Wie oft ärgerst du dich über {gegenteil}',
+    'Mal ehrlich, wie oft hattest du das schon: {gegenteil}',
     'Wusstest du, dass es dafür längst eine Lösung gibt?',
     'Warum macht das eigentlich nicht jeder so?',
     'Was würdest du machen, wenn {v1} einfach dazugehören würde?',
-    'Kennst du jemanden aus {ziel}, dem das hier nicht helfen würde?'
+    'Passt das zu dir: {ziel}? Dann wird dir das hier gefallen.'
   ],
   geheimtipp: [
     'Okay, das hier ist noch ein echter Geheimtipp – aber nicht mehr lange.',
     'Psst – das hier kennt noch fast niemand.',
     'Ich zeig dir jetzt was, das gerade erst am Start ist.',
-    'Für {ziel} ist das hier noch ein echter Insider-Tipp.',
+    'Insider-Tipp, wenn das hier zu dir passt: {ziel}',
     'Das hier sollte eigentlich noch niemand wissen: {v1}.'
   ]
 };
@@ -765,7 +765,7 @@ function skriptGenerieren(){
   const ziel = p.zielgruppe || 'alle, die sich das Leben leichter machen wollen';
   const preisTxt = p.preis.toFixed(2).replace('.',',');
 
-  const gegenteil = `dass man sich mit ${p.kategorie==='Sonstiges' ? 'sowas' : p.kategorie} lange rumärgert, obwohl es auch einfach ginge.`;
+  const gegenteil = `Die ewige Sucherei, bevor man endlich etwas findet, das wirklich hilft.`;
 
   let hook = zufall(hooks[stil])
     .replaceAll('{name}', p.name)

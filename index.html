@@ -733,7 +733,16 @@ function beitragErzeugen(p, typ){
   const ytTitel = (p.name + ' – ' + v1).slice(0, 95);
   const youtube = 'Titel:\n' + ytTitel + '\n\nBeschreibung:\n' + p.name + ' kurz erklärt: ' + p.vorteile.slice(0,3).join(', ') + '. ' + ort + '\n' + werbung + '\n\n#shorts ' + tags.slice(0,3).join(' ');
 
-  return { tiktok, youtube };
+  // Instagram: fast wie TikTok, aber weniger Hashtags (3-5), Link-Hinweis am Ende statt im Fließtext
+  const igTags = tags.slice(0,5);
+  const instagram = aufhaenger + ' ' + emoji + '\n' + p.name + ': ' + ort + '\n' + werbung + '\n\n' + igTags.join(' ');
+
+  // Pinterest: Suchmaschine statt Feed — Titel mit Suchbegriff vorn, sachlichere Beschreibung
+  const pinTitel = (p.name + ' – ' + v1).slice(0, 100);
+  const pinBeschreibung = p.name + ': ' + p.vorteile.slice(0,3).join(', ') + '. ' + ort + ' ' + werbung + '\n\n' + tags.slice(0,4).join(' ');
+  const pinterest = 'Pin-Titel:\n' + pinTitel + '\n\nPin-Beschreibung:\n' + pinBeschreibung;
+
+  return { tiktok, youtube, instagram, pinterest };
 }
 
 function beitragNeuGenerieren(){
@@ -746,8 +755,13 @@ function beitragNeuGenerieren(){
   window._beitraege[p.id] = beitrag;
   akt.tiktok = beitrag.tiktok;
   akt.youtube = beitrag.youtube;
-  document.querySelectorAll('#skriptBox .skript-output')[1].innerHTML = '<span class="abschnitt">📱 TikTok-Beitragstext</span>' + esc(beitrag.tiktok);
-  document.querySelectorAll('#skriptBox .skript-output')[2].innerHTML = '<span class="abschnitt cyan">▶️ YouTube Shorts – Titel &amp; Beschreibung</span>' + esc(beitrag.youtube);
+  akt.instagram = beitrag.instagram;
+  akt.pinterest = beitrag.pinterest;
+  const bloecke = document.querySelectorAll('#skriptBox .skript-output');
+  bloecke[1].innerHTML = '<span class="abschnitt">📱 TikTok-Beitragstext</span>' + esc(beitrag.tiktok);
+  bloecke[2].innerHTML = '<span class="abschnitt cyan">▶️ YouTube Shorts – Titel &amp; Beschreibung</span>' + esc(beitrag.youtube);
+  bloecke[3].innerHTML = '<span class="abschnitt">📸 Instagram-Beitragstext</span>' + esc(beitrag.instagram);
+  bloecke[4].innerHTML = '<span class="abschnitt cyan">📌 Pinterest-Pin</span>' + esc(beitrag.pinterest);
   toast('Beitragstexte neu gewürfelt ✔');
 }
 
@@ -818,6 +832,8 @@ function skriptGenerieren(){
   const beitrag = window._beitraege[p.id];
   window._skriptAktuell.tiktok = beitrag.tiktok;
   window._skriptAktuell.youtube = beitrag.youtube;
+  window._skriptAktuell.instagram = beitrag.instagram;
+  window._skriptAktuell.pinterest = beitrag.pinterest;
 
   document.getElementById('skriptBox').innerHTML = `
     <div class="skript-output" id="skriptText">
@@ -836,7 +852,15 @@ function skriptGenerieren(){
     <div class="skript-output">
       <span class="abschnitt cyan">▶️ YouTube Shorts – Titel &amp; Beschreibung</span>${esc(beitrag.youtube)}
     </div>
-    <button class="btn btn-primary" onclick="kopieren(window._skriptAktuell.youtube)">📋 YouTube-Text kopieren</button>`;
+    <button class="btn btn-primary" onclick="kopieren(window._skriptAktuell.youtube)">📋 YouTube-Text kopieren</button>
+    <div class="skript-output">
+      <span class="abschnitt">📸 Instagram-Beitragstext</span>${esc(beitrag.instagram)}
+    </div>
+    <button class="btn btn-primary" onclick="kopieren(window._skriptAktuell.instagram)">📋 Instagram-Text kopieren</button>
+    <div class="skript-output">
+      <span class="abschnitt cyan">📌 Pinterest-Pin</span>${esc(beitrag.pinterest)}
+    </div>
+    <button class="btn btn-primary" onclick="kopieren(window._skriptAktuell.pinterest)">📋 Pinterest-Text kopieren</button>`;
 }
 
 function skriptSpeichern(){
@@ -851,6 +875,8 @@ function skriptSpeichern(){
     text: akt.text,
     tiktok: akt.tiktok,
     youtube: akt.youtube,
+    instagram: akt.instagram,
+    pinterest: akt.pinterest,
     status: 'skript',
     datum: new Date().toLocaleDateString('de-DE')
   });
@@ -891,10 +917,20 @@ function archivRendern(){
         <summary>▶️ YouTube-Text anzeigen</summary>
         <div class="skript-output">${esc(s.youtube)}</div>
       </details>` : ''}
+      ${s.instagram ? `<details>
+        <summary>📸 Instagram-Text anzeigen</summary>
+        <div class="skript-output">${esc(s.instagram)}</div>
+      </details>` : ''}
+      ${s.pinterest ? `<details>
+        <summary>📌 Pinterest-Pin anzeigen</summary>
+        <div class="skript-output">${esc(s.pinterest)}</div>
+      </details>` : ''}
       <div class="archiv-actions">
         <button class="btn btn-primary btn-sm" onclick="kopieren(skripte.find(x=>x.id===${s.id}).text)">📋 Skript</button>
         ${s.tiktok ? `<button class="btn btn-primary btn-sm" onclick="kopieren(skripte.find(x=>x.id===${s.id}).tiktok)">📋 TikTok</button>` : ''}
         ${s.youtube ? `<button class="btn btn-primary btn-sm" onclick="kopieren(skripte.find(x=>x.id===${s.id}).youtube)">📋 YouTube</button>` : ''}
+        ${s.instagram ? `<button class="btn btn-primary btn-sm" onclick="kopieren(skripte.find(x=>x.id===${s.id}).instagram)">📋 Instagram</button>` : ''}
+        ${s.pinterest ? `<button class="btn btn-primary btn-sm" onclick="kopieren(skripte.find(x=>x.id===${s.id}).pinterest)">📋 Pinterest</button>` : ''}
         <button class="btn btn-ghost btn-sm" onclick="skriptLoeschen(${s.id})">🗑 Löschen</button>
       </div>
     </div>`).join('');

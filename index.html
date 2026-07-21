@@ -707,6 +707,30 @@ const toolCtas = [
   'Hol dir {name} über den Link in meiner Bio – und folge mir für mehr Tools, die dir Arbeit abnehmen!'
 ];
 
+/* Kürzt Text an einer Wortgrenze statt mitten im Wort, mit „…" am Ende */
+function wortSlice(text, maxLen){
+  if(!text || text.length <= maxLen) return text || '';
+  let t = text.slice(0, maxLen);
+  const lastSpace = t.lastIndexOf(' ');
+  if(lastSpace > maxLen * 0.5) t = t.slice(0, lastSpace);
+  return t + '…';
+}
+
+/* Nimmt nur den ersten Satz/Satzteil eines (evtl. längeren) Vorteils, für Titel/Hooks */
+function ersterSatzteil(text, maxLen){
+  if(!text) return '';
+  let teil = text.split(/[.!?]/)[0].trim();
+  return wortSlice(teil, maxLen);
+}
+
+/* Reiht mehrere Vorteile sauber als eigene Sätze aneinander, egal ob sie
+   schon einen Punkt haben (ganze Sätze) oder nicht (kurze Stichpunkte) */
+function satzForm(arr){
+  const teile = arr.filter(Boolean).map(s => s.trim().replace(/[.\s]+$/,''));
+  if(!teile.length) return '';
+  return teile.join('. ') + '.';
+}
+
 function beitragErzeugen(p, typ){
   const v1 = p.vorteile[0] || '';
   const kat = p.kategorie || '';
@@ -742,16 +766,16 @@ function beitragErzeugen(p, typ){
 
   const tiktok = aufhaenger + ' ' + emoji + '\n' + p.name + ': ' + ort + '\n' + werbung + '\n\n' + tags.join(' ');
 
-  const ytTitel = (p.name + ' – ' + v1).slice(0, 95);
-  const youtube = 'Titel:\n' + ytTitel + '\n\nBeschreibung:\n' + p.name + ' kurz erklärt: ' + p.vorteile.slice(0,3).join(', ') + '. ' + ort + '\n' + werbung + '\n\n#shorts ' + tags.slice(0,3).join(' ');
+  const ytTitel = wortSlice(p.name + ' – ' + ersterSatzteil(v1, 60), 95);
+  const youtube = 'Titel:\n' + ytTitel + '\n\nBeschreibung:\n' + p.name + ' kurz erklärt: ' + satzForm(p.vorteile.slice(0,3)) + ' ' + ort + '\n' + werbung + '\n\n#shorts ' + tags.slice(0,3).join(' ');
 
   // Instagram: fast wie TikTok, aber weniger Hashtags (3-5), Link-Hinweis am Ende statt im Fließtext
   const igTags = tags.slice(0,5);
   const instagram = aufhaenger + ' ' + emoji + '\n' + p.name + ': ' + ort + '\n' + werbung + '\n\n' + igTags.join(' ');
 
   // Pinterest: Suchmaschine statt Feed — Titel mit Suchbegriff vorn, sachlichere Beschreibung
-  const pinTitel = (p.name + ' – ' + v1).slice(0, 100);
-  const pinBeschreibung = p.name + ': ' + p.vorteile.slice(0,3).join(', ') + '. ' + ort + ' ' + werbung + '\n\n' + tags.slice(0,4).join(' ');
+  const pinTitel = wortSlice(p.name + ' – ' + ersterSatzteil(v1, 65), 100);
+  const pinBeschreibung = p.name + ': ' + satzForm(p.vorteile.slice(0,3)) + ' ' + ort + ' ' + werbung + '\n\n' + tags.slice(0,4).join(' ');
   const pinterest = 'Pin-Titel:\n' + pinTitel + '\n\nPin-Beschreibung:\n' + pinBeschreibung;
 
   return { tiktok, youtube, instagram, pinterest };

@@ -351,9 +351,16 @@
   <div class="card">
     <h2>Skript erstellen</h2>
     <label for="gProdukt">Produkt auswählen</label>
-    <select id="gProdukt"></select>
+    <select id="gProdukt" onchange="produktWechselAnzeige()"></select>
     <p style="color:var(--muted);font-size:13px;margin-top:6px">Der Schluss des Skripts passt sich automatisch an: Buch → Amazon, Tool → Link in Bio, Freebie → gratis, Affiliate → Warenkorb.</p>
-    <div class="row">
+    <label for="gLaenge">Videolänge</label>
+    <select id="gLaenge">
+      <option value="30">ca. 30 Sekunden</option>
+      <option value="45" selected>ca. 45 Sekunden</option>
+      <option value="60">ca. 60 Sekunden</option>
+    </select>
+
+    <div id="altStilBox" class="row" style="margin-top:12px">
       <div>
         <label for="gStil">Skript-Stil</label>
         <select id="gStil">
@@ -364,17 +371,22 @@
           <option value="geheimtipp">Geheimtipp</option>
         </select>
       </div>
-      <div>
-        <label for="gLaenge">Videolänge</label>
-        <select id="gLaenge">
-          <option value="30">ca. 30 Sekunden</option>
-          <option value="45" selected>ca. 45 Sekunden</option>
-          <option value="60">ca. 60 Sekunden</option>
-        </select>
+      <div style="display:flex;align-items:flex-end;gap:8px">
+        <button class="btn btn-pink" onclick="skriptGenerieren()">🎬 Skript generieren</button>
+        <button class="btn btn-ghost" onclick="skriptGenerieren()" title="Erzeugt eine neue Variante">🔄</button>
       </div>
     </div>
-    <button class="btn btn-pink" onclick="skriptGenerieren()">🎬 Skript generieren</button>
-    <button class="btn btn-ghost" onclick="skriptGenerieren()" title="Erzeugt eine neue Variante">🔄 Neue Variante</button>
+
+    <div id="version31Box" style="display:none;margin-top:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+        <strong style="font-size:13px;color:var(--muted)">31 Content-Varianten · <span id="blockRange"></span></strong>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost btn-sm" onclick="blockNavigieren(-1)">← Zurück</button>
+          <button class="btn btn-ghost btn-sm" onclick="blockNavigieren(1)">Weiter →</button>
+        </div>
+      </div>
+      <div id="blockListe"></div>
+    </div>
 
     <div id="skriptBox"></div>
   </div>
@@ -421,7 +433,7 @@ function zeigeTab(name){
   document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+name).classList.add('active');
   document.querySelector('nav button[data-tab="'+name+'"]').classList.add('active');
-  if(name==='generator') produktDropdownFuellen();
+  if(name==='generator'){ produktDropdownFuellen(); produktWechselAnzeige(); }
   if(name==='archiv') archivRendern();
 }
 
@@ -765,6 +777,259 @@ function beitragNeuGenerieren(){
   toast('Beitragstexte neu gewürfelt ✔');
 }
 
+/* ---------- 31 Content-Varianten (nur Buch & Tool) ---------- */
+const VERSIONEN31 = [
+  // 1. Problem → Lösung (4)
+  { kategorie:'Problem → Lösung', titel:'Klassisch', bauen:(c)=>({
+    hook:`Kennst du das? Du suchst ewig, bevor du endlich etwas findest, das wirklich hilft.`,
+    haupt:`Genau dafür gibt es ${c.name}. Der Unterschied: ${c.v1}.\nUnd es kann noch mehr: ${c.v2}. Gerade für ${c.ziel} ist das Gold wert.`
+  })},
+  { kategorie:'Problem → Lösung', titel:'Direkt', bauen:(c)=>({
+    hook:`Stopp – bevor du weiterscrollst.`,
+    haupt:`${c.name} löst genau das Problem, das du kennst: ${c.v1}. Und obendrauf: ${c.v2}.`
+  })},
+  { kategorie:'Problem → Lösung', titel:'Mit Frage', bauen:(c)=>({
+    hook:`Wie oft hast du dir schon gewünscht, es gäbe dafür eine einfache Lösung?`,
+    haupt:`Die Antwort heißt ${c.name}. Das Wichtigste: ${c.v1}. Und für ${c.ziel} macht das den entscheidenden Unterschied.`
+  })},
+  { kategorie:'Problem → Lösung', titel:'Emotional', bauen:(c)=>({
+    hook:`Ganz ehrlich: Genau dieses Problem hat mich lange genervt.`,
+    haupt:`Bis ich ${c.name} gefunden habe. ${c.v1} – und plötzlich war es kein Thema mehr. Dazu kommt: ${c.v2}.`
+  })},
+
+  // 2. 3 Gründe (3)
+  { kategorie:'3 Gründe', titel:'Klassisch', bauen:(c)=>({
+    hook:`Drei Gründe, warum sich ${c.name} gerade lohnt.`,
+    haupt:`Grund eins: ${c.v1}.\nGrund zwei: ${c.v2}.\nUnd Grund drei, mein Favorit: ${c.v3}.`
+  })},
+  { kategorie:'3 Gründe', titel:'Nummeriert kurz', bauen:(c)=>({
+    hook:`Drei Dinge, die ${c.name} richtig gut macht.`,
+    haupt:`1. ${c.v1}\n2. ${c.v2}\n3. ${c.v3}\nKurz, klar, fertig.`
+  })},
+  { kategorie:'3 Gründe', titel:'Mit Zahlen-Hook', bauen:(c)=>({
+    hook:`In den nächsten 30 Sekunden bekommst du 3 Gründe für ${c.name}.`,
+    haupt:`${c.v1}. Dazu: ${c.v2}. Und für ${c.ziel} vor allem: ${c.v3}.`
+  })},
+
+  // 3. Storytelling (3)
+  { kategorie:'Storytelling', titel:'Ich-Erfahrung', bauen:(c)=>({
+    hook:`Letzte Woche ist mir etwas passiert, das ich euch zeigen musste.`,
+    haupt:`Ich hab mir ${c.name} geholt – und was soll ich sagen: ${c.v1}. Damit hatte ich nicht gerechnet. Dazu kommt: ${c.v2}.`
+  })},
+  { kategorie:'Storytelling', titel:'Skeptisch-dann-überzeugt', bauen:(c)=>({
+    hook:`Ich war anfangs richtig skeptisch, ehrlich gesagt.`,
+    haupt:`Dann hab ich ${c.name} ausprobiert. ${c.v1} – das war der Moment, wo ich umgedacht habe. Und dann kam noch: ${c.v2}.`
+  })},
+  { kategorie:'Storytelling', titel:'Zeitsprung', bauen:(c)=>({
+    hook:`Vor ein paar Wochen wusste ich noch nicht, dass es sowas gibt.`,
+    haupt:`Heute nutze ich ${c.name} regelmäßig – wegen ${c.v1} und ${c.v2}. Für ${c.ziel} ein echter Unterschied.`
+  })},
+
+  // 4. Mythos vs. Wahrheit (3)
+  { kategorie:'Mythos vs. Wahrheit', titel:'Ein Mythos', bauen:(c)=>({
+    hook:`Ein Mythos, den ich endlich klarstellen will.`,
+    haupt:`Viele denken, sowas wie ${c.name} lohnt sich nicht. Die Wahrheit: ${c.v1}. Und genau deshalb ist es gerade für ${c.ziel} sinnvoll.`
+  })},
+  { kategorie:'Mythos vs. Wahrheit', titel:'Zwei Mythen', bauen:(c)=>({
+    hook:`Zwei Dinge, die die meisten über ${c.name} falsch verstehen.`,
+    haupt:`Mythos eins: es bringt nichts. Wahrheit: ${c.v1}.\nMythos zwei: es lohnt den Aufwand nicht. Wahrheit: ${c.v2}.`
+  })},
+  { kategorie:'Mythos vs. Wahrheit', titel:'Direkter Widerspruch', bauen:(c)=>({
+    hook:`Das hier widerspricht dem, was die meisten glauben.`,
+    haupt:`${c.name} beweist das Gegenteil: ${c.v1}. Und wer zu ${c.ziel} gehört, merkt das sofort.`
+  })},
+
+  // 5. Vorher/Nachher (3)
+  { kategorie:'Vorher/Nachher', titel:'Klassisch', bauen:(c)=>({
+    hook:`Vorher – Nachher. So hat sich das bei mir verändert.`,
+    haupt:`Vorher: viel Aufwand, wenig Ergebnis. Nachher, mit ${c.name}: ${c.v1}. Der Unterschied ist einfach spürbar.`
+  })},
+  { kategorie:'Vorher/Nachher', titel:'Mit Zahl', bauen:(c)=>({
+    hook:`Der Unterschied lässt sich fast beziffern.`,
+    haupt:`Ohne ${c.name}: viel Zeit verschenkt. Mit ${c.name}: ${c.v1}. Dazu noch: ${c.v2}.`
+  })},
+  { kategorie:'Vorher/Nachher', titel:'Alltagsszene', bauen:(c)=>({
+    hook:`Stell dir zwei Versionen von dir vor – vorher und nachher.`,
+    haupt:`Die eine kämpft sich durch, ohne Hilfe. Die andere nutzt ${c.name} und profitiert von ${c.v1}. Für ${c.ziel} ein klarer Fall.`
+  })},
+
+  // 6. FAQ (3)
+  { kategorie:'FAQ', titel:'Häufigste Frage', bauen:(c)=>({
+    hook:`Die Frage, die mir zu ${c.name} am häufigsten gestellt wird.`,
+    haupt:`"Lohnt sich das wirklich?" Kurz gesagt: ja, wegen ${c.v1}. Und weil ${c.v2}.`
+  })},
+  { kategorie:'FAQ', titel:'Skepsis-Frage', bauen:(c)=>({
+    hook:`"Ist das nicht too good to be true?" – diese Frage kommt oft.`,
+    haupt:`Nein. ${c.name} liefert wirklich ${c.v1}. Kein Marketing-Versprechen, sondern genau das.`
+  })},
+  { kategorie:'FAQ', titel:'Preis-Frage', bauen:(c)=>({
+    hook:`"Was kostet das eigentlich?" Gute Frage.`,
+    haupt:`${c.name} kostet ${c.preisTxt} € – und dafür bekommst du ${c.v1}. Für ${c.ziel} ist das mehr als fair.`
+  })},
+
+  // 7. Fehler (3)
+  { kategorie:'Fehler', titel:'Der eine Fehler', bauen:(c)=>({
+    hook:`Der eine Fehler, den fast jeder am Anfang macht.`,
+    haupt:`Man versucht es ohne Hilfe und verliert dabei viel Zeit. ${c.name} verhindert genau das – durch ${c.v1}.`
+  })},
+  { kategorie:'Fehler', titel:'3 Fehler kurz', bauen:(c)=>({
+    hook:`3 Fehler, die dich unnötig Zeit kosten.`,
+    haupt:`Kein System zu haben. Alles allein zu machen. Und das Falsche zuerst anzugehen. ${c.name} löst alle drei auf einmal – durch ${c.v1}.`
+  })},
+  { kategorie:'Fehler', titel:'Fehler den ich selbst gemacht habe', bauen:(c)=>({
+    hook:`Diesen Fehler hab ich selbst gemacht, bevor ich es besser wusste.`,
+    haupt:`Ich hab lange ohne ${c.name} gearbeitet – und mir damit ${c.v1} entgehen lassen. Das muss dir nicht passieren.`
+  })},
+
+  // 8. Quick-Tipp (3)
+  { kategorie:'Quick-Tipp', titel:'30-Sekunden-Tipp', bauen:(c)=>({
+    hook:`Ein Tipp für die nächsten 30 Sekunden.`,
+    haupt:`Schau dir ${c.name} an. Der Grund: ${c.v1}. Mehr musst du gerade nicht wissen.`
+  })},
+  { kategorie:'Quick-Tipp', titel:'Ein Satz Tipp', bauen:(c)=>({
+    hook:`Ein einziger Satz, der dir Zeit sparen kann.`,
+    haupt:`${c.name} gibt dir ${c.v1} – probier es einfach aus.`
+  })},
+  { kategorie:'Quick-Tipp', titel:'Tipp mit Bonus', bauen:(c)=>({
+    hook:`Kleiner Tipp, große Wirkung.`,
+    haupt:`${c.name} bringt dir ${c.v1}. Und als Bonus noch: ${c.v2}.`
+  })},
+
+  // 9. Vergleich (3)
+  { kategorie:'Vergleich', titel:'Vorher genutzt vs. jetzt', bauen:(c)=>({
+    hook:`Was ich früher genutzt habe, im Vergleich zu jetzt.`,
+    haupt:`Früher: mühsam und zeitaufwendig. Jetzt, mit ${c.name}: ${c.v1}. Der Unterschied ist kein Vergleich mehr.`
+  })},
+  { kategorie:'Vergleich', titel:'Teuer vs. günstig', bauen:(c)=>({
+    hook:`Teure Lösung oder ${c.name} für ${c.preisTxt} €?`,
+    haupt:`Andere verlangen ein Vielfaches für weniger. ${c.name} liefert ${c.v1} – zu einem fairen Preis.`
+  })},
+  { kategorie:'Vergleich', titel:'Zeitaufwand-Vergleich', bauen:(c)=>({
+    hook:`Der Zeitaufwand-Vergleich, der mich überzeugt hat.`,
+    haupt:`Ohne ${c.name}: Stunden investiert. Mit ${c.name}: ${c.v1} – in einem Bruchteil der Zeit.`
+  })},
+
+  // 10. Behind the Scenes (3)
+  { kategorie:'Behind the Scenes', titel:'Warum ich es erstellt habe', bauen:(c)=>({
+    hook:`Warum es ${c.name} überhaupt gibt.`,
+    haupt:`Ich hab selbst gemerkt, wie sehr ${c.ziel} genau das braucht: ${c.v1}. Also hab ich es umgesetzt.`
+  })},
+  { kategorie:'Behind the Scenes', titel:'Wie es entstanden ist', bauen:(c)=>({
+    hook:`Ein kurzer Blick hinter die Kulissen von ${c.name}.`,
+    haupt:`Entstanden aus einem echten Bedarf: ${c.v1}. Und am Ende kam noch dazu: ${c.v2}.`
+  })},
+  { kategorie:'Behind the Scenes', titel:'Ehrlicher Blick', bauen:(c)=>({
+    hook:`Ganz ehrlich, ohne Marketing-Sprech.`,
+    haupt:`${c.name} ist kein Zufallsprodukt. Dahinter steckt ${c.v1} – für genau ${c.ziel} gemacht.`
+  })}
+];
+
+let blockIndex = 0;
+const BLOCK_GROESSE = 6;
+
+function produktWechselAnzeige(){
+  const pid = parseInt(document.getElementById('gProdukt').value);
+  const p = produkte.find(x=>x.id===pid);
+  const altBox = document.getElementById('altStilBox');
+  const neuBox = document.getElementById('version31Box');
+  if(!p){ altBox.style.display=''; neuBox.style.display='none'; return; }
+  if(p.typ==='buch' || p.typ==='tool'){
+    altBox.style.display = 'none';
+    neuBox.style.display = '';
+    blockIndex = 0;
+    renderBlock();
+  } else {
+    altBox.style.display = '';
+    neuBox.style.display = 'none';
+  }
+}
+
+function blockNavigieren(richtung){
+  const maxBlock = Math.ceil(VERSIONEN31.length / BLOCK_GROESSE) - 1;
+  blockIndex = Math.min(maxBlock, Math.max(0, blockIndex + richtung));
+  renderBlock();
+}
+
+function renderBlock(){
+  const start = blockIndex * BLOCK_GROESSE;
+  const ende = Math.min(start + BLOCK_GROESSE, VERSIONEN31.length);
+  document.getElementById('blockRange').textContent = `Nr. ${start+1}–${ende} von ${VERSIONEN31.length}`;
+  const box = document.getElementById('blockListe');
+  box.innerHTML = VERSIONEN31.slice(start, ende).map((v,i)=>{
+    const idx = start+i;
+    return `
+    <div class="produkt" style="margin-bottom:8px">
+      <div class="info">
+        <span class="badge gut">${esc(v.kategorie)}</span>
+        <div class="name" style="margin-top:4px">${esc(v.titel)}</div>
+      </div>
+      <button class="btn btn-pink btn-sm" onclick="versionGenerieren(${idx})">🎬 Erzeugen</button>
+    </div>`;
+  }).join('');
+}
+
+function versionGenerieren(idx){
+  const pid = parseInt(document.getElementById('gProdukt').value);
+  const p = produkte.find(x=>x.id===pid);
+  if(!p){ alert('Bitte erst ein Produkt anlegen und auswählen.'); return; }
+  const v = p.vorteile;
+  const ctx = {
+    name: p.name,
+    v1: v[0] || 'es funktioniert einfach',
+    v2: v[1] || (v[0] || 'es funktioniert einfach'),
+    v3: v[2] || v[1] || v[0] || 'es funktioniert einfach',
+    ziel: p.zielgruppe || 'alle, die sich das Leben leichter machen wollen',
+    preisTxt: p.preis.toFixed(2).replace('.',',')
+  };
+  const version = VERSIONEN31[idx];
+  const { hook, haupt } = version.bauen(ctx);
+  const typ = p.typ || 'affiliate';
+  const ctaPool = typ==='buch' ? buchCtas : toolCtas;
+  const cta = zufall(ctaPool).replaceAll('{name}', p.name).replaceAll('{preis}', ctx.preisTxt);
+  renderSkriptAusgabe(hook, haupt, cta, p, typ, `${version.kategorie} – ${version.titel}`);
+}
+
+/* ---------- Geteilte Ausgabe-Darstellung ---------- */
+function renderSkriptAusgabe(hook, haupt, cta, p, typ, stilLabel){
+  const komplett = hook + '\n\n' + haupt + '\n\n' + cta;
+  window._skriptAktuell = { pid: p.id, text: komplett, stil: stilLabel };
+  if(!window._beitraege) window._beitraege = {};
+  if(!window._beitraege[p.id]) window._beitraege[p.id] = beitragErzeugen(p, typ);
+  const beitrag = window._beitraege[p.id];
+  window._skriptAktuell.tiktok = beitrag.tiktok;
+  window._skriptAktuell.youtube = beitrag.youtube;
+  window._skriptAktuell.instagram = beitrag.instagram;
+  window._skriptAktuell.pinterest = beitrag.pinterest;
+
+  document.getElementById('skriptBox').innerHTML = `
+    <div class="skript-output" id="skriptText">
+      <span class="abschnitt cyan">Hook (erste 3 Sekunden)</span>${esc(hook)}
+      <span class="abschnitt">Hauptteil</span>${esc(haupt)}
+      <span class="abschnitt cyan">Call-to-Action</span>${esc(cta)}
+    </div>
+    <button class="btn btn-primary" onclick="kopieren(window._skriptAktuell.text)">📋 Für HeyGen kopieren</button>
+    <button class="btn btn-ghost" onclick="skriptSpeichern()">💾 In „Meine Skripte" speichern</button>
+    <p style="color:var(--amber);font-size:12px;margin-top:8px">⚠️ Erst speichern, dann erst in HeyGen einfügen — sonst ist der Text weg, sobald du das nächste Skript generierst. Du brauchst ihn später auch für den Untertitelbrenner.</p>
+    <div class="skript-output">
+      <span class="abschnitt">📱 TikTok-Beitragstext</span>${esc(beitrag.tiktok)}
+    </div>
+    <button class="btn btn-primary" onclick="kopieren(window._skriptAktuell.tiktok)">📋 TikTok-Text kopieren</button>
+    <button class="btn btn-ghost" onclick="beitragNeuGenerieren()">🔄 Beitragstexte neu würfeln</button>
+    <div class="skript-output">
+      <span class="abschnitt cyan">▶️ YouTube Shorts – Titel &amp; Beschreibung</span>${esc(beitrag.youtube)}
+    </div>
+    <button class="btn btn-primary" onclick="kopieren(window._skriptAktuell.youtube)">📋 YouTube-Text kopieren</button>
+    <div class="skript-output">
+      <span class="abschnitt">📸 Instagram-Beitragstext</span>${esc(beitrag.instagram)}
+    </div>
+    <button class="btn btn-primary" onclick="kopieren(window._skriptAktuell.instagram)">📋 Instagram-Text kopieren</button>
+    <div class="skript-output">
+      <span class="abschnitt cyan">📌 Pinterest-Pin</span>${esc(beitrag.pinterest)}
+    </div>
+    <button class="btn btn-primary" onclick="kopieren(window._skriptAktuell.pinterest)">📋 Pinterest-Text kopieren</button>`;
+  document.getElementById('skriptBox').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
 function skriptGenerieren(){
   const pid = parseInt(document.getElementById('gProdukt').value);
   const p = produkte.find(x=>x.id===pid);
@@ -824,43 +1089,8 @@ function skriptGenerieren(){
     .replaceAll('{name}', p.name)
     .replaceAll('{preis}', preisTxt);
 
-  const komplett = hook + '\n\n' + haupt + '\n\n' + cta;
-
-  window._skriptAktuell = { pid: p.id, text: komplett, stil: stil };
-  if(!window._beitraege) window._beitraege = {};
-  if(!window._beitraege[p.id]) window._beitraege[p.id] = beitragErzeugen(p, typ);
-  const beitrag = window._beitraege[p.id];
-  window._skriptAktuell.tiktok = beitrag.tiktok;
-  window._skriptAktuell.youtube = beitrag.youtube;
-  window._skriptAktuell.instagram = beitrag.instagram;
-  window._skriptAktuell.pinterest = beitrag.pinterest;
-
-  document.getElementById('skriptBox').innerHTML = `
-    <div class="skript-output" id="skriptText">
-      <span class="abschnitt cyan">Hook (erste 3 Sekunden)</span>${esc(hook)}
-      <span class="abschnitt">Hauptteil</span>${esc(haupt)}
-      <span class="abschnitt cyan">Call-to-Action</span>${esc(cta)}
-    </div>
-    <button class="btn btn-primary" onclick="kopieren(window._skriptAktuell.text)">📋 Für HeyGen kopieren</button>
-    <button class="btn btn-ghost" onclick="skriptSpeichern()">💾 In „Meine Skripte" speichern</button>
-    <p style="color:var(--amber);font-size:12px;margin-top:8px">⚠️ Erst speichern, dann erst in HeyGen einfügen — sonst ist der Text weg, sobald du das nächste Skript generierst. Du brauchst ihn später auch für den Untertitelbrenner.</p>
-    <div class="skript-output">
-      <span class="abschnitt">📱 TikTok-Beitragstext</span>${esc(beitrag.tiktok)}
-    </div>
-    <button class="btn btn-primary" onclick="kopieren(window._skriptAktuell.tiktok)">📋 TikTok-Text kopieren</button>
-    <button class="btn btn-ghost" onclick="beitragNeuGenerieren()">🔄 Beitragstexte neu würfeln</button>
-    <div class="skript-output">
-      <span class="abschnitt cyan">▶️ YouTube Shorts – Titel &amp; Beschreibung</span>${esc(beitrag.youtube)}
-    </div>
-    <button class="btn btn-primary" onclick="kopieren(window._skriptAktuell.youtube)">📋 YouTube-Text kopieren</button>
-    <div class="skript-output">
-      <span class="abschnitt">📸 Instagram-Beitragstext</span>${esc(beitrag.instagram)}
-    </div>
-    <button class="btn btn-primary" onclick="kopieren(window._skriptAktuell.instagram)">📋 Instagram-Text kopieren</button>
-    <div class="skript-output">
-      <span class="abschnitt cyan">📌 Pinterest-Pin</span>${esc(beitrag.pinterest)}
-    </div>
-    <button class="btn btn-primary" onclick="kopieren(window._skriptAktuell.pinterest)">📋 Pinterest-Text kopieren</button>`;
+  const stilNamenKurz = {problem:'Problem & Lösung', gruende:'Top-3-Gründe', story:'Story', frage:'Frage-Hook', geheimtipp:'Geheimtipp'};
+  renderSkriptAusgabe(hook, haupt, cta, p, typ, stilNamenKurz[stil] || stil);
 }
 
 function skriptSpeichern(){

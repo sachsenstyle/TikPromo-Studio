@@ -731,7 +731,7 @@ function satzForm(arr){
   return teile.join('. ') + '.';
 }
 
-function beitragErzeugen(p, typ){
+function beitragErzeugen(p, typ, hook, haupt){
   const v1 = p.vorteile[0] || '';
   const kat = p.kategorie || '';
   let tags;
@@ -762,20 +762,25 @@ function beitragErzeugen(p, typ){
   const werbung = typ==='affiliate' ? 'Werbung' : 'Werbung (in eigener Sache)';
   const emojis = ['💡','✨','👀','🔥'];
   const emoji = zufall(emojis);
-  const aufhaenger = v1 ? v1.charAt(0).toUpperCase()+v1.slice(1) : p.name;
 
-  const tiktok = aufhaenger + ' ' + emoji + '\n' + p.name + ': ' + ort + '\n' + werbung + '\n\n' + tags.join(' ');
+  // Beitragstexte leiten sich aus dem TATSÄCHLICHEN Skript ab (Hook + Hauptteil),
+  // damit jede der 31 Varianten auch wirklich unterschiedliche Social-Texte bekommt —
+  // nicht mehr aus einem fest zwischengespeicherten Standardtext.
+  const opener = ersterSatzteil(hook, 90) || (v1 ? v1.charAt(0).toUpperCase()+v1.slice(1) : p.name);
+  const kern = ersterSatzteil(haupt, 130) || v1;
 
-  const ytTitel = wortSlice(p.name + ' – ' + ersterSatzteil(v1, 60), 95);
-  const youtube = 'Titel:\n' + ytTitel + '\n\nBeschreibung:\n' + p.name + ' kurz erklärt: ' + satzForm(p.vorteile.slice(0,3)) + ' ' + ort + '\n' + werbung + '\n\n#shorts ' + tags.slice(0,3).join(' ');
+  const tiktok = opener + ' ' + emoji + '\n' + kern + '\n' + p.name + ': ' + ort + '\n' + werbung + '\n\n' + tags.join(' ');
 
-  // Instagram: fast wie TikTok, aber weniger Hashtags (3-5), Link-Hinweis am Ende statt im Fließtext
+  const ytTitel = wortSlice(p.name + ' – ' + ersterSatzteil(hook, 60), 95);
+  const youtube = 'Titel:\n' + ytTitel + '\n\nBeschreibung:\n' + kern + ' ' + ort + '\n' + werbung + '\n\n#shorts ' + tags.slice(0,3).join(' ');
+
+  // Instagram: fast wie TikTok, aber weniger Hashtags (3-5)
   const igTags = tags.slice(0,5);
-  const instagram = aufhaenger + ' ' + emoji + '\n' + p.name + ': ' + ort + '\n' + werbung + '\n\n' + igTags.join(' ');
+  const instagram = opener + ' ' + emoji + '\n' + kern + '\n' + p.name + ': ' + ort + '\n' + werbung + '\n\n' + igTags.join(' ');
 
   // Pinterest: Suchmaschine statt Feed — Titel mit Suchbegriff vorn, sachlichere Beschreibung
-  const pinTitel = wortSlice(p.name + ' – ' + ersterSatzteil(v1, 65), 100);
-  const pinBeschreibung = p.name + ': ' + satzForm(p.vorteile.slice(0,3)) + ' ' + ort + ' ' + werbung + '\n\n' + tags.slice(0,4).join(' ');
+  const pinTitel = wortSlice(p.name + ' – ' + ersterSatzteil(hook, 65), 100);
+  const pinBeschreibung = p.name + ': ' + kern + ' ' + ort + ' ' + werbung + '\n\n' + tags.slice(0,4).join(' ');
   const pinterest = 'Pin-Titel:\n' + pinTitel + '\n\nPin-Beschreibung:\n' + pinBeschreibung;
 
   return { tiktok, youtube, instagram, pinterest };
@@ -787,8 +792,7 @@ function beitragNeuGenerieren(){
   const p = produkte.find(x=>x.id===akt.pid);
   if(!p) return;
   const typ = p.typ || 'affiliate';
-  const beitrag = beitragErzeugen(p, typ);
-  window._beitraege[p.id] = beitrag;
+  const beitrag = beitragErzeugen(p, typ, akt.hook, akt.haupt);
   akt.tiktok = beitrag.tiktok;
   akt.youtube = beitrag.youtube;
   akt.instagram = beitrag.instagram;
@@ -1016,10 +1020,8 @@ function versionGenerieren(idx){
 /* ---------- Geteilte Ausgabe-Darstellung ---------- */
 function renderSkriptAusgabe(hook, haupt, cta, p, typ, stilLabel){
   const komplett = hook + '\n\n' + haupt + '\n\n' + cta;
-  window._skriptAktuell = { pid: p.id, text: komplett, stil: stilLabel };
-  if(!window._beitraege) window._beitraege = {};
-  if(!window._beitraege[p.id]) window._beitraege[p.id] = beitragErzeugen(p, typ);
-  const beitrag = window._beitraege[p.id];
+  window._skriptAktuell = { pid: p.id, text: komplett, stil: stilLabel, hook: hook, haupt: haupt };
+  const beitrag = beitragErzeugen(p, typ, hook, haupt);
   window._skriptAktuell.tiktok = beitrag.tiktok;
   window._skriptAktuell.youtube = beitrag.youtube;
   window._skriptAktuell.instagram = beitrag.instagram;

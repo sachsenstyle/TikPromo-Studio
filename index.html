@@ -379,7 +379,7 @@
 
     <div id="version31Box" style="display:none;margin-top:14px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">
-        <strong style="font-size:13px;color:var(--muted)">31 Content-Varianten · <span id="blockRange"></span></strong>
+        <strong style="font-size:13px;color:var(--muted)">Content-Varianten · <span id="blockRange"></span></strong>
         <div style="display:flex;gap:8px">
           <button class="btn btn-ghost btn-sm" onclick="blockNavigieren(-1)">← Zurück</button>
           <button class="btn btn-ghost btn-sm" onclick="blockNavigieren(1)">Weiter →</button>
@@ -952,8 +952,110 @@ const VERSIONEN31 = [
   })}
 ];
 
+/* ---------- Fiktion & Unterhaltung: Kinderbuch, Roman & Unterhaltung ---------- */
+/* Kein Problem/Lösung-Framing — hier geht es um Neugier, Figuren, Stimmung, nicht ums Problemlösen */
+const VERSIONEN_FIKTION = [
+  // Neugier-Hook (3)
+  { kategorie:'Neugier-Hook', titel:'Direkter Einstieg', bauen:(c)=>({
+    hook:`Stell dir vor: ${c.v1}.`,
+    haupt:`Genau damit beginnt „${c.name}". Für ${c.ziel} genau die richtige Geschichte.`
+  })},
+  { kategorie:'Neugier-Hook', titel:'Frage an den Zuschauer', bauen:(c)=>({
+    hook:`Was würdest du tun, wenn ${c.v1}?`,
+    haupt:`Genau darum geht's in „${c.name}". Und es kommt noch dicker: ${c.v2}.`
+  })},
+  { kategorie:'Neugier-Hook', titel:'Andeutung', bauen:(c)=>({
+    hook:`Es beginnt ganz harmlos. Bis ${c.v1}.`,
+    haupt:`„${c.name}" nimmt dich von da an mit – Seite für Seite.`
+  })},
+
+  // Charakter-Teaser (2)
+  { kategorie:'Charakter-Teaser', titel:'Hauptfigur vorstellen', bauen:(c)=>({
+    hook:`Lass mich dir jemanden vorstellen.`,
+    haupt:`In „${c.name}" triffst du auf eine Geschichte rund um ${c.v1}. Genau das macht sie besonders.`
+  })},
+  { kategorie:'Charakter-Teaser', titel:'Wieso diese Figur bleibt', bauen:(c)=>({
+    hook:`Es gibt Figuren, die bleiben einfach im Kopf.`,
+    haupt:`In „${c.name}" ist das genauso – wegen ${c.v1}.`
+  })},
+
+  // Atmosphäre / Stimmung (3)
+  { kategorie:'Atmosphäre', titel:'Stimmungsbild', bauen:(c)=>({
+    hook:`Manche Geschichten fühlt man mehr, als man sie liest.`,
+    haupt:`„${c.name}" ist genau so eine. ${c.v1} – das spürst du von der ersten Seite an.`
+  })},
+  { kategorie:'Atmosphäre', titel:'Ort/Setting', bauen:(c)=>({
+    hook:`Es gibt Orte, die selbst zur Hauptfigur werden.`,
+    haupt:`In „${c.name}" ist das nicht anders. ${c.v1}.`
+  })},
+  { kategorie:'Atmosphäre', titel:'Leise Spannung', bauen:(c)=>({
+    hook:`Nicht jede Spannung schreit – manche schleicht sich an.`,
+    haupt:`Genau das macht „${c.name}" aus: ${c.v1}.`
+  })},
+
+  // Zitat-Tease (2)
+  { kategorie:'Zitat-Tease', titel:'Ausschnitt anteasern', bauen:(c)=>({
+    hook:`Ein Satz aus „${c.name}", der hängen bleibt:`,
+    haupt:`${c.v1}. Mehr verrate ich jetzt nicht – lies selbst weiter.`
+  })},
+  { kategorie:'Zitat-Tease', titel:'Erste Zeile', bauen:(c)=>({
+    hook:`So beginnt „${c.name}".`,
+    haupt:`${c.v1}. Und von da an will man nicht mehr aufhören.`
+  })},
+
+  // Emotionaler Moment (2)
+  { kategorie:'Emotionaler Moment', titel:'Berührender Moment', bauen:(c)=>({
+    hook:`Es gibt diesen einen Moment, der einen erwischt.`,
+    haupt:`In „${c.name}" ist das der Punkt, an dem ${c.v1}.`
+  })},
+  { kategorie:'Emotionaler Moment', titel:'Warum es berührt', bauen:(c)=>({
+    hook:`Manche Geschichten gehen einfach näher, als man denkt.`,
+    haupt:`„${c.name}" schafft das durch ${c.v1}.`
+  })},
+
+  // Cliffhanger (2)
+  { kategorie:'Cliffhanger', titel:'Am Wendepunkt', bauen:(c)=>({
+    hook:`Und dann passiert das, womit niemand gerechnet hat.`,
+    haupt:`Mehr dazu in „${c.name}" – so viel sei gesagt: ${c.v1}.`
+  })},
+  { kategorie:'Cliffhanger', titel:'Offene Frage', bauen:(c)=>({
+    hook:`Die Frage, die bis zur letzten Seite bleibt:`,
+    haupt:`Ob ${c.v1} – das erfährst du nur in „${c.name}".`
+  })},
+
+  // Für-wen-ist-das (3)
+  { kategorie:'Für wen ist das', titel:'Direkte Ansprache', bauen:(c)=>({
+    hook:`„${c.name}" ist genau richtig, wenn gilt: ${c.ziel}.`,
+    haupt:`Dann wird dir besonders gefallen: ${c.v1}.`
+  })},
+  { kategorie:'Für wen ist das', titel:'Vorlese-Situation', bauen:(c)=>({
+    hook:`Ein Buch für genau die richtigen Momente.`,
+    haupt:`„${c.name}" passt perfekt für ${c.ziel} – wegen ${c.v1}.`
+  })},
+  { kategorie:'Für wen ist das', titel:'Geschenk-Anlass', bauen:(c)=>({
+    hook:`Auf der Suche nach einem Buch, das wirklich ankommt?`,
+    haupt:`„${c.name}" ist genau das – für ${c.ziel}, wegen ${c.v1}.`
+  })},
+
+  // Making-of / Autorinnen-Perspektive (2)
+  { kategorie:'Making-of', titel:'Warum entstanden', bauen:(c)=>({
+    hook:`Warum es „${c.name}" überhaupt gibt.`,
+    haupt:`Die Geschichte ist aus genau einer Idee entstanden: ${c.v1}.`
+  })},
+  { kategorie:'Making-of', titel:'Blick hinter die Kulissen', bauen:(c)=>({
+    hook:`Ein kurzer Blick hinter die Kulissen von „${c.name}".`,
+    haupt:`Entstanden ist es, weil ${c.v1} – und genau das wollte ich erzählen.`
+  })}
+];
+
 let blockIndex = 0;
 const BLOCK_GROESSE = 6;
+
+/* Welche Bibliothek passt zur Kategorie: Fiktion/Unterhaltung oder Sach/Problem-Lösung */
+function aktiveBibliothek(p){
+  const fiktionsKategorien = ['Kinderbuch', 'Roman & Unterhaltung'];
+  return fiktionsKategorien.includes(p.kategorie) ? VERSIONEN_FIKTION : VERSIONEN31;
+}
 
 function produktWechselAnzeige(){
   const pid = parseInt(document.getElementById('gProdukt').value);
@@ -973,17 +1075,23 @@ function produktWechselAnzeige(){
 }
 
 function blockNavigieren(richtung){
-  const maxBlock = Math.ceil(VERSIONEN31.length / BLOCK_GROESSE) - 1;
+  const pid = parseInt(document.getElementById('gProdukt').value);
+  const p = produkte.find(x=>x.id===pid);
+  const bib = p ? aktiveBibliothek(p) : VERSIONEN31;
+  const maxBlock = Math.ceil(bib.length / BLOCK_GROESSE) - 1;
   blockIndex = Math.min(maxBlock, Math.max(0, blockIndex + richtung));
   renderBlock();
 }
 
 function renderBlock(){
+  const pid = parseInt(document.getElementById('gProdukt').value);
+  const p = produkte.find(x=>x.id===pid);
+  const bib = p ? aktiveBibliothek(p) : VERSIONEN31;
   const start = blockIndex * BLOCK_GROESSE;
-  const ende = Math.min(start + BLOCK_GROESSE, VERSIONEN31.length);
-  document.getElementById('blockRange').textContent = `Nr. ${start+1}–${ende} von ${VERSIONEN31.length}`;
+  const ende = Math.min(start + BLOCK_GROESSE, bib.length);
+  document.getElementById('blockRange').textContent = `Nr. ${start+1}–${ende} von ${bib.length}`;
   const box = document.getElementById('blockListe');
-  box.innerHTML = VERSIONEN31.slice(start, ende).map((v,i)=>{
+  box.innerHTML = bib.slice(start, ende).map((v,i)=>{
     const idx = start+i;
     return `
     <div class="produkt" style="margin-bottom:8px">
@@ -1009,7 +1117,8 @@ function versionGenerieren(idx){
     ziel: p.zielgruppe || 'alle, die sich das Leben leichter machen wollen',
     preisTxt: p.preis.toFixed(2).replace('.',',')
   };
-  const version = VERSIONEN31[idx];
+  const bib = aktiveBibliothek(p);
+  const version = bib[idx];
   const { hook, haupt } = version.bauen(ctx);
   const typ = p.typ || 'affiliate';
   const ctaPool = typ==='buch' ? buchCtas : toolCtas;

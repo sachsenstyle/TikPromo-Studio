@@ -1250,13 +1250,41 @@ function skriptSpeichern(){
 }
 
 /* ---------- Archiv ---------- */
+let editingId = null;
+
 function archivRendern(){
   const box = document.getElementById('archivListe');
   if(skripte.length===0){
     box.innerHTML = '<div class="leer">Noch keine gespeicherten Skripte. Generiere eins im Skript-Generator und speichere es hier ab.</div>';
     return;
   }
-  box.innerHTML = skripte.map(s=>`
+  box.innerHTML = skripte.map(s=>{
+    if(editingId === s.id){
+      return `
+      <div class="archiv-item">
+        <div class="kopf">
+          <div>
+            <span class="titel">${esc(s.produkt)}</span>
+            <span class="datum"> &middot; ${esc(s.stil)} &middot; ${s.datum}</span>
+          </div>
+        </div>
+        <label style="display:block;font-size:12px;font-weight:600;color:var(--muted);margin:10px 0 4px">Skript</label>
+        <textarea id="edit-text-${s.id}" style="width:100%;min-height:120px;background:var(--surface2);border:1px solid var(--line);border-radius:10px;color:var(--text);padding:10px 12px;font-family:inherit;font-size:14px">${esc(s.text)}</textarea>
+        ${s.tiktok ? `<label style="display:block;font-size:12px;font-weight:600;color:var(--muted);margin:10px 0 4px">TikTok-Beitragstext</label>
+        <textarea id="edit-tiktok-${s.id}" style="width:100%;min-height:80px;background:var(--surface2);border:1px solid var(--line);border-radius:10px;color:var(--text);padding:10px 12px;font-family:inherit;font-size:14px">${esc(s.tiktok)}</textarea>` : ''}
+        ${s.youtube ? `<label style="display:block;font-size:12px;font-weight:600;color:var(--muted);margin:10px 0 4px">YouTube-Text</label>
+        <textarea id="edit-youtube-${s.id}" style="width:100%;min-height:80px;background:var(--surface2);border:1px solid var(--line);border-radius:10px;color:var(--text);padding:10px 12px;font-family:inherit;font-size:14px">${esc(s.youtube)}</textarea>` : ''}
+        ${s.instagram ? `<label style="display:block;font-size:12px;font-weight:600;color:var(--muted);margin:10px 0 4px">Instagram-Text</label>
+        <textarea id="edit-instagram-${s.id}" style="width:100%;min-height:80px;background:var(--surface2);border:1px solid var(--line);border-radius:10px;color:var(--text);padding:10px 12px;font-family:inherit;font-size:14px">${esc(s.instagram)}</textarea>` : ''}
+        ${s.pinterest ? `<label style="display:block;font-size:12px;font-weight:600;color:var(--muted);margin:10px 0 4px">Pinterest-Pin</label>
+        <textarea id="edit-pinterest-${s.id}" style="width:100%;min-height:80px;background:var(--surface2);border:1px solid var(--line);border-radius:10px;color:var(--text);padding:10px 12px;font-family:inherit;font-size:14px">${esc(s.pinterest)}</textarea>` : ''}
+        <div class="archiv-actions">
+          <button class="btn btn-primary btn-sm" onclick="skriptSpeichernEdit(${s.id})">💾 Änderungen speichern</button>
+          <button class="btn btn-ghost btn-sm" onclick="editingId=null; archivRendern();">Abbrechen</button>
+        </div>
+      </div>`;
+    }
+    return `
     <div class="archiv-item">
       <div class="kopf">
         <div>
@@ -1296,9 +1324,26 @@ function archivRendern(){
         ${s.youtube ? `<button class="btn btn-primary btn-sm" onclick="kopieren(skripte.find(x=>x.id===${s.id}).youtube)">📋 YouTube</button>` : ''}
         ${s.instagram ? `<button class="btn btn-primary btn-sm" onclick="kopieren(skripte.find(x=>x.id===${s.id}).instagram)">📋 Instagram</button>` : ''}
         ${s.pinterest ? `<button class="btn btn-primary btn-sm" onclick="kopieren(skripte.find(x=>x.id===${s.id}).pinterest)">📋 Pinterest</button>` : ''}
+        <button class="btn btn-ghost btn-sm" onclick="editingId=${s.id}; archivRendern();">✏️ Bearbeiten</button>
         <button class="btn btn-ghost btn-sm" onclick="skriptLoeschen(${s.id})">🗑 Löschen</button>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
+}
+
+function skriptSpeichernEdit(id){
+  const s = skripte.find(x=>x.id===id);
+  if(!s) return;
+  const feld = (name) => { const el = document.getElementById('edit-'+name+'-'+id); return el ? el.value : undefined; };
+  s.text = feld('text') ?? s.text;
+  if(s.tiktok !== undefined) s.tiktok = feld('tiktok') ?? s.tiktok;
+  if(s.youtube !== undefined) s.youtube = feld('youtube') ?? s.youtube;
+  if(s.instagram !== undefined) s.instagram = feld('instagram') ?? s.instagram;
+  if(s.pinterest !== undefined) s.pinterest = feld('pinterest') ?? s.pinterest;
+  speichern('tikpromo_skripte', skripte);
+  editingId = null;
+  archivRendern();
+  toast('Änderungen gespeichert ✔');
 }
 
 function statusAendern(id, status){

@@ -557,10 +557,9 @@ Du kennst genau, was auf Pinterest tatsächlich gesucht, gespeichert und geliked
 - Wenn im Prompt eine Vorgabe für den Kompositionsansatz mitgegeben wird, halte dich exakt daran. Auch bei abstrakteren Kompositionsansätzen muss der Prompt konkrete, spezifische Details aus der eingegebenen Idee einbauen — kein austauschbares Stock-Motiv.
 - Das gesamte 2:3-Format muss bis zum unteren Rand bewusst gestaltet und gefüllt sein — kein großer leerer/toter Bereich unten. Schreibe das explizit in den Prompt ("composition fills the entire frame edge to edge, no empty or dead space at the bottom").
 
-Schreibe den Prompt selbst IMMER auf Englisch (Bildgeneratoren arbeiten damit am zuverlässigsten), außer bei der Hook-Textzeile und der Signatur selbst — die im Bild sichtbaren Textzeilen bleiben auf Deutsch, exakt in Anführungszeichen im Prompt angegeben. Der Prompt ist sehr konkret: Motiv, Komposition, Kameraperspektive, Licht, Farbpalette, Textur/Stil, Stimmung, die Hook-Textzeile mit Position/Kontrastfläche, Format-Hinweis. Kein Fülltext, keine Erklärung außenrum — nur der reine Prompt-Text.
+Schreibe den Prompt selbst IMMER auf Englisch (Bildgeneratoren arbeiten damit am zuverlässigsten), außer bei der Hook-Textzeile und der Signatur selbst — die im Bild sichtbaren Textzeilen bleiben auf Deutsch. Der Prompt ist sehr konkret: Motiv, Komposition, Kameraperspektive, Licht, Farbpalette, Textur/Stil, Stimmung, die Hook-Textzeile mit Position/Kontrastfläche, Format-Hinweis.
 
-Antworte AUSSCHLIESSLICH mit einem JSON-Objekt, kein Markdown, kein Fließtext davor oder danach, in genau diesem Format:
-{"image_prompt":"..."}`;
+Antworte AUSSCHLIESSLICH mit dem reinen Prompt-Text selbst — keine Anführungszeichen drumherum, kein JSON, kein Markdown, keine Einleitung, keine Erklärung. Nur der Prompt, direkt einsatzbereit zum Kopieren.`;
 
   const userMsg = 'Idee: ' + idee + '\n\nKompositionsansatz für dieses Bild: ' + komposition + (signatur ? ('\n\nSignatur unten rechts im Bild (winzig, dezent): "' + signatur + '"') : '\n\nKeine Signatur einfügen.');
 
@@ -585,9 +584,7 @@ Antworte AUSSCHLIESSLICH mit einem JSON-Objekt, kein Markdown, kein Fließtext d
     const data = await response.json();
     const textBlock = (data.content || []).find(b => b.type === 'text');
     if(!textBlock) throw new Error('Keine Textantwort erhalten.');
-    let clean = textBlock.text.trim().replace(/^```json/i,'').replace(/^```/,'').replace(/```$/,'').trim();
-    const parsed = JSON.parse(clean);
-    window._pinPromptAktuell = parsed.image_prompt || '';
+    window._pinPromptAktuell = textBlock.text.trim();
     box.innerHTML = `<div class="skript-output"><span class="abschnitt cyan">Bild-Prompt</span>${esc(window._pinPromptAktuell)}</div>
       <button class="btn btn-primary" onclick="kopieren(window._pinPromptAktuell)">📋 Prompt kopieren</button>`;
   }catch(err){

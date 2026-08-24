@@ -1002,15 +1002,17 @@ async function skriptSchreibenKI(p, typ, version, laenge, apiKey){
   const systemPrompt = `Du schreibst kompletten Social-Media-Content für Content-Creator: ein TikTok/Instagram-Avatar-Video-Skript UND die dazu passenden Beitragstexte für TikTok, YouTube Shorts, Instagram und Pinterest — alles in einem Durchgang, damit es inhaltlich zusammenpasst statt wie zufällig zusammengeschnitten zu wirken. Die Person steht selbst nicht vor der Kamera — ein KI-Avatar spricht den Text —, aber alles soll klingen wie ein echter Mensch, der gerade persönlich spricht bzw. schreibt: warm, direkt, konkret, mit eigener Note. KEINE Marketing-Floskeln, keine leeren Superlative ("revolutionär", "game changer"), kein 08/15-Werbesprech, keine generischen Füllsätze wie "das Problem, das du kennst". Nutze die gegebenen Fakten wirklich — Produktname, Zielgruppe, die genannten Vorteile — statt austauschbarer Standardsätze. Schreib jeden Text als vollständigen, in sich abgeschlossenen Gedanken, schneide niemals einen Satz mitten ab. Variiere Satzlänge bewusst.${tonalitaet ? ' Gewünschte Tonalität/Stimme: ' + tonalitaet + '.' : ''} Es geht um ${typBeschreibung}.
 
 Antworte AUSSCHLIESSLICH mit einem JSON-Objekt ohne Markdown-Codeblock, ohne Einleitung, mit genau diesen Feldern:
-{"hook": "Video-Einstieg, erste 2-3 Sekunden, packend, max 2 Sätze",
+{"hook": "Video-Einstieg, erste 2-3 Sekunden, packend, max 2 Sätze. Steig SOFORT mit der Kernaussage, einer überraschenden Behauptung, einer konkreten Zahl oder einer direkten Frage ein. Verboten: jede Form von Anmoderation oder Aufwärmsatz ('Hey', 'Heute zeige ich euch', 'Wusstest du', 'Ich möchte dir zeigen', 'Lass uns über X sprechen'). Der erste Satz muss für sich allein schon zum Weiterschauen zwingen.",
 "haupt": "Hauptteil des Video-Skripts, mehrere Sätze mit \\n getrennt, Ziellänge etwa ${laenge} Sekunden Sprechzeit (grob ${Math.round(laenge*2.3)} Wörter für hook+haupt zusammen)",
 "cta": "Kurzer Call-to-Action-Satz fürs Video-Ende, der auf folgende Bezugsquelle hinweist — nutze sinngemäß genau diese Angabe: '${ort}'",
-"tiktok": "TikTok-Beitragstext, 2-4 Sätze plus Bezugsquelle plus '${werbung}' plus 4-6 passende deutsche Hashtags",
+"tiktok": "TikTok-Beitragstext, 2-4 Sätze plus Bezugsquelle plus '${werbung}' plus 4-6 passende deutsche Hashtags. Wiederhole NICHT den Produktnamen oder Titel wortgleich als eigenen Satz — der Beitragstext liefert eine zusätzliche Information, einen Kontext oder eine Pointe, die im Video/Titel noch nicht vorkam.",
 "youtube_titel": "YouTube-Shorts-Titel, max 95 Zeichen, eigenständiger vollständiger Satz oder Wortgruppe, kein Satzabbruch",
-"youtube_beschreibung": "YouTube-Beschreibung, eigenständiger Absatz, plus Bezugsquelle, plus '${werbung}', plus 3 Hashtags inkl. #shorts",
-"instagram": "Instagram-Beitragstext, ähnlich wie TikTok aber mit 3-5 Hashtags",
+"youtube_beschreibung": "YouTube-Beschreibung, eigenständiger Absatz, plus Bezugsquelle, plus '${werbung}', plus 3 Hashtags inkl. #shorts. Wiederhole NICHT den youtube_titel wortgleich als ersten Satz — steig mit einer neuen Information oder einem Detail ein, das der Titel noch nicht verraten hat.",
+"instagram": "Instagram-Beitragstext, ähnlich wie TikTok aber mit 3-5 Hashtags. Wiederhole NICHT den Produktnamen/Titel wortgleich als eigenen Satz.",
 "pinterest_titel": "Pinterest-Pin-Titel mit Suchbegriff vorne, max 100 Zeichen",
-"pinterest_beschreibung": "sachliche Pinterest-Beschreibung, plus Bezugsquelle, plus '${werbung}', plus 3-4 Hashtags"}
+"pinterest_beschreibung": "sachliche Pinterest-Beschreibung, plus Bezugsquelle, plus '${werbung}', plus 3-4 Hashtags. Wiederhole NICHT den pinterest_titel wortgleich als ersten Satz — ergänze ihn stattdessen um Details, die er noch nicht abdeckt."}
+
+Grundregel für alle Felder mit einem zugehörigen Titel: Titel und Text dürfen sich thematisch ergänzen, aber der Text darf den Titel niemals wortgleich oder fast wortgleich als eigenen ersten Satz wiederholen — das wirkt redundant und wie doppelt gemoppelt.
 
 Schreib alles auf Deutsch, in Ich-Perspektive der Person, die das Video macht — ohne einen Namen zu verwenden, da du nicht weißt, wer genau spricht.`;
 
@@ -1449,14 +1451,16 @@ async function paketGenerieren(){
     const systemPrompt = `Du schreibst ein komplettes Promo-Paket für Content-Creator, das aus mehreren Textbausteinen besteht, die aber inhaltlich zusammenpassen sollen wie aus einem Guss — nicht wie zufällig aneinandergereihte Bausteine. Die Person spricht selbst nicht im Video (KI-Avatar), aber alles soll klingen wie ein echter Mensch: warm, direkt, konkret, mit eigener Note. KEINE Marketing-Floskeln, keine leeren Superlative, kein 08/15-Werbesprech, keine generischen Füllsätze. Nutze die gegebenen Fakten wirklich.${tonalitaet ? ' Gewünschte Tonalität/Stimme: ' + tonalitaet + '.' : ''} Es geht um ${wasIst}. Werbekennzeichnung: ${kennz}. Bezugsquelle/Link: ${link}. Preis: ${preisTxt}.
 
 Antworte AUSSCHLIESSLICH mit einem JSON-Objekt ohne Markdown-Codeblock, ohne Einleitung, mit genau diesen Feldern:
-{"video": "Avatar-Videoskript für HeyGen, 30-45 Sekunden Sprechzeit, mit Hook, Hauptteil und Call-to-Action als durchgehender Text mit \\n zwischen den Absätzen",
+{"video": "Avatar-Videoskript für HeyGen, 30-45 Sekunden Sprechzeit, mit Hook, Hauptteil und Call-to-Action als durchgehender Text mit \\n zwischen den Absätzen. Der Hook (erste 2-3 Sekunden) steigt SOFORT mit Kernaussage, überraschender Behauptung, Zahl oder direkter Frage ein — keine Anmoderation wie 'Hey', 'Heute zeige ich euch', 'Ich möchte dir zeigen'.",
 "facebook_1": "Facebook-Post: Ankündigung, mit passendem Emoji-Einstieg und Link am Ende",
 "facebook_2": "Facebook-Post: Nutzen-fokussiert, mit 3 kurzen Stichpunkten (✅) zu den Vorteilen",
 "facebook_3": "Facebook-Post: Erinnerung/Reminder, etwas dringlicher, mit Link am Ende",
 "email_betreff": "eine einzige, überzeugende Betreffzeile für eine E-Mail",
-"email": "vollständige E-Mail für MailerLite, beginnend mit 'Hallo {\\$name},' persönlich geschrieben, mit Link, endet mit einem Gruß",
+"email": "vollständige E-Mail für MailerLite, beginnend mit 'Hallo {\\$name},' persönlich geschrieben, mit Link, endet mit einem Gruß. Wiederhole NICHT die email_betreff wortgleich als ersten Satz.",
 "pinterest_titel": "Pinterest-Pin-Titel mit Suchbegriff vorne, max 100 Zeichen",
-"pinterest_beschreibung": "sachliche Pinterest-Beschreibung mit 3-4 passenden Hashtags"}
+"pinterest_beschreibung": "sachliche Pinterest-Beschreibung mit 3-4 passenden Hashtags. Wiederhole NICHT den pinterest_titel wortgleich als ersten Satz — ergänze ihn stattdessen um Details, die er noch nicht abdeckt."}
+
+Grundregel: Ein Titel und sein zugehöriger Text dürfen sich ergänzen, aber der Text darf den Titel niemals wortgleich oder fast wortgleich als eigenen ersten Satz wiederholen.
 
 Schreib alles auf Deutsch, in Ich-Perspektive der Person, die postet — ohne einen Namen zu verwenden.`;
 

@@ -500,6 +500,17 @@
     <h2>Pin-Bild-Prompt erstellen</h2>
     <label for="pinIdee">Worum geht es in deinem Pin?</label>
     <textarea id="pinIdee" placeholder="z. B. Untertitelbrenner Pro (TestNavigator) — Video rein, Untertitel raus, in Sekunden fertig"></textarea>
+    <label for="pinKomposition">Bildaufbau</label>
+    <select id="pinKomposition">
+      <option value="">Überrasch mich (zufällig)</option>
+      <option value="Nahaufnahme des Endergebnisses in Aktion — zeig das fertige Resultat, nicht den Prozess">Nahaufnahme vom Ergebnis</option>
+      <option value="Vorher/Nachher-Gegenüberstellung in einem Bild">Vorher / Nachher</option>
+      <option value="Flatlay von oben, Hauptmotiv umgeben von passenden Objekten">Flatlay von oben</option>
+      <option value="Point-of-View — aus der Perspektive der nutzenden Person, Hände sichtbar">Point-of-View</option>
+      <option value="Reines Grafik-Design mit großer Typografie als Hauptelement, kaum oder kein Foto-Motiv">Reines Grafik-Design</option>
+      <option value="Bildcollage: 3 kleine Schritte nebeneinander, die zum Ergebnis führen">Bildcollage (3 Schritte)</option>
+      <option value="Eine einzelne, ruhige Heldenszene mit viel Negativraum um das Hauptmotiv">Heldenszene</option>
+    </select>
     <button class="btn btn-primary" id="pinBtn" onclick="pinPromptErstellen()">📌 Prompt erstellen</button>
     <div id="pinBox"></div>
   </div>
@@ -534,7 +545,8 @@ async function pinPromptErstellen(){
     'Bildcollage: 3 kleine Schritte nebeneinander, die zum Ergebnis führen',
     'Eine einzelne, ruhige Heldenszene mit viel Negativraum um das Hauptmotiv'
   ];
-  const komposition = kompositionen[Math.floor(Math.random() * kompositionen.length)];
+  const gewaehlt = document.getElementById('pinKomposition').value;
+  const komposition = gewaehlt || kompositionen[Math.floor(Math.random() * kompositionen.length)];
 
   const btn = document.getElementById('pinBtn');
   const box = document.getElementById('pinBox');
@@ -558,7 +570,7 @@ Du kennst genau, was auf Pinterest tatsächlich gesucht, gespeichert und geliked
 - Niemals erfundene Zahlen, Beträge, Umsätze, Prozentangaben oder Erfolgsstatistiken ins Bild schreiben lassen (z. B. "€12.458,90" oder "+156%"), auch nicht als Beispiel oder Deko-Element auf einem Dashboard/Chart im Bild. Wenn ein Dashboard, Chart oder Diagramm Teil der Komposition ist, beschreibe es visuell (Balken, Kurven, Häkchen) OHNE konkrete Zahlen oder Prozentwerte im Prompt vorzugeben.
 - Das gesamte 2:3-Format muss bis zum unteren Rand bewusst gestaltet und gefüllt sein — kein großer leerer/toter Bereich unten. Schreibe das explizit in den Prompt ("composition fills the entire frame edge to edge, no empty or dead space at the bottom").
 
-Schreibe den Prompt selbst IMMER auf Englisch (Bildgeneratoren arbeiten damit am zuverlässigsten), außer bei der Hook-Textzeile und der Signatur selbst — die im Bild sichtbaren Textzeilen bleiben auf Deutsch. Der Prompt ist sehr konkret: Motiv, Komposition, Kameraperspektive, Licht, Farbpalette, Textur/Stil, Stimmung, die Hook-Textzeile mit Position/Kontrastfläche, Format-Hinweis.
+Schreibe den Prompt selbst IMMER auf Englisch (Bildgeneratoren arbeiten damit am zuverlässigsten), außer bei der Hook-Textzeile und der Signatur selbst — die im Bild sichtbaren Textzeilen bleiben auf Deutsch. Setze die deutsche Hook-Textzeile im Prompt in genau EIN Paar doppelte Anführungszeichen, nie mehr, nie verschachtelt und nie doppelt am Ende (kein „Text"" oder "Text""). Der Prompt ist sehr konkret: Motiv, Komposition, Kameraperspektive, Licht, Farbpalette, Textur/Stil, Stimmung, die Hook-Textzeile mit Position/Kontrastfläche, Format-Hinweis.
 
 Antworte AUSSCHLIESSLICH mit dem reinen Prompt-Text selbst — keine Anführungszeichen drumherum, kein JSON, kein Markdown, keine Einleitung, keine Erklärung. Nur der Prompt, direkt einsatzbereit zum Kopieren.`;
 

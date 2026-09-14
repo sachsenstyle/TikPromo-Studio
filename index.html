@@ -616,10 +616,10 @@ function laden(key, fallback){
 let produkte = laden('tikpromo_produkte', []);
 (function seedWebseiten(){
   const seiten = [
-    { name: 'TestNavigator (ganze Webseite)', link: 'https://tool-webseite.pages.dev',
+    { name: 'https://tool-webseite.pages.dev', link: 'https://tool-webseite.pages.dev',
       vorteile: ['Drei Tools an einem Ort: Carousel Creator, Kalender Generator Pro, Untertitelbrenner Pro', 'Läuft direkt im Browser, keine Installation nötig', 'Einmal zahlen statt Abo'],
       zielgruppe: 'Content-Creator, die eigene Tools statt Abos suchen' },
-    { name: 'Zwergenbibliothek (ganze Webseite)', link: 'https://zwergenbibliothek.wordpress.com',
+    { name: 'https://zwergenbibliothek.wordpress.com', link: 'https://zwergenbibliothek.wordpress.com',
       vorteile: ['Krimis (K17-Reihe), Kinderbücher (Lena und Max), Ratgeber und Workbooks an einem Ort', 'Alle Bücher der Autorin Nivora Graufeder', 'Modern, vielseitig, selbst geschrieben'],
       zielgruppe: 'Leserinnen und Leser, die stöbern statt gezielt ein einzelnes Buch suchen' }
   ];
@@ -805,6 +805,8 @@ function produktListeRendern(){
     const preisTxt = p.preis > 0 ? p.preis.toFixed(2).replace('.',',')+' €' : 'gratis';
     const meta = typ==='affiliate'
       ? preisTxt+' &middot; '+p.prov+'% = '+p.provEuro.toFixed(2).replace('.',',')+' € pro Verkauf &middot; '+esc(p.kategorie)
+      : typ==='webseite'
+      ? esc(p.link)
       : preisTxt+' &middot; '+esc(p.kategorie);
     return `
     <div class="produkt">
@@ -843,7 +845,8 @@ function produktDropdownFuellen(){
   sel.innerHTML = produkte.map(p=>{
     const typ = p.typ || 'affiliate';
     const preisTxt = p.preis > 0 ? p.preis.toFixed(2).replace('.',',')+' €' : 'gratis';
-    return `<option value="${p.id}">${typLabels[typ].split(' ')[0]} ${esc(p.name)} (${preisTxt})</option>`;
+    const zusatz = typ==='webseite' ? '' : ` (${preisTxt})`;
+    return `<option value="${p.id}">${typLabels[typ].split(' ')[0]} ${esc(p.name)}${zusatz}</option>`;
   }).join('');
 }
 
@@ -1426,7 +1429,8 @@ function paketDropdownFuellen(){
   sel.innerHTML = produkte.map(p=>{
     const typ = p.typ || 'affiliate';
     const preisTxt = p.preis > 0 ? p.preis.toFixed(2).replace('.',',')+' €' : 'gratis';
-    return `<option value="${p.id}">${typLabels[typ].split(' ')[0]} ${esc(p.name)} (${preisTxt})</option>`;
+    const zusatz = typ==='webseite' ? '' : ` (${preisTxt})`;
+    return `<option value="${p.id}">${typLabels[typ].split(' ')[0]} ${esc(p.name)}${zusatz}</option>`;
   }).join('');
 }
 

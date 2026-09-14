@@ -501,6 +501,17 @@
     <h2>Pin-Bild-Prompt erstellen</h2>
     <label for="pinIdee">Worum geht es in deinem Pin?</label>
     <textarea id="pinIdee" placeholder="z. B. Untertitelbrenner Pro (TestNavigator) — Video rein, Untertitel raus, in Sekunden fertig"></textarea>
+    <label for="pinAufbau">Bildaufbau</label>
+    <select id="pinAufbau">
+      <option value="zufaellig">Überrasch mich (zufällig)</option>
+      <option value="nahaufnahme">Nahaufnahme vom Ergebnis</option>
+      <option value="vorhernachher">Vorher / Nachher</option>
+      <option value="flatlay">Flatlay von oben</option>
+      <option value="pov">Point-of-View</option>
+      <option value="grafik">Reines Grafik-Design</option>
+      <option value="collage">Bildcollage (3 Schritte)</option>
+      <option value="heldenszene">Heldenszene</option>
+    </select>
     <button class="btn btn-primary" id="pinBtn" onclick="pinPromptErstellen()">📌 Prompt erstellen</button>
     <div id="pinBox"></div>
   </div>
@@ -526,16 +537,19 @@ async function pinPromptErstellen(){
   if(ideeLower.includes('testnavigator')) signatur = 'TestNavigator';
   else if(ideeLower.includes('zwergenbibliothek')) signatur = 'Zwergenbibliothek';
 
-  const kompositionen = [
-    'Nahaufnahme des Endergebnisses in Aktion — zeig das fertige Resultat, nicht den Prozess',
-    'Vorher/Nachher-Gegenüberstellung in einem Bild',
-    'Flatlay von oben, Hauptmotiv umgeben von passenden Objekten',
-    'Point-of-View — aus der Perspektive der nutzenden Person, Hände sichtbar',
-    'Reines Grafik-Design mit großer Typografie als Hauptelement, kaum oder kein Foto-Motiv',
-    'Bildcollage: 3 kleine Schritte nebeneinander, die zum Ergebnis führen',
-    'Eine einzelne, ruhige Heldenszene mit viel Negativraum um das Hauptmotiv'
-  ];
-  const komposition = kompositionen[Math.floor(Math.random() * kompositionen.length)];
+  const kompositionen = {
+    nahaufnahme: 'Nahaufnahme des Endergebnisses in Aktion — zeig das fertige Resultat, nicht den Prozess',
+    vorhernachher: 'Vorher/Nachher-Gegenüberstellung in einem Bild',
+    flatlay: 'Flatlay von oben, Hauptmotiv umgeben von passenden Objekten',
+    pov: 'Point-of-View — aus der Perspektive der nutzenden Person, Hände sichtbar',
+    grafik: 'Reines Grafik-Design mit großer Typografie als Hauptelement, kaum oder kein Foto-Motiv',
+    collage: 'Bildcollage: 3 kleine Schritte nebeneinander, die zum Ergebnis führen',
+    heldenszene: 'Eine einzelne, ruhige Heldenszene mit viel Negativraum um das Hauptmotiv'
+  };
+  const aufbauWahl = document.getElementById('pinAufbau').value;
+  const komposition = aufbauWahl === 'zufaellig'
+    ? Object.values(kompositionen)[Math.floor(Math.random() * Object.keys(kompositionen).length)]
+    : kompositionen[aufbauWahl];
 
   const btn = document.getElementById('pinBtn');
   const box = document.getElementById('pinBox');

@@ -614,6 +614,24 @@ function laden(key, fallback){
 }
 
 let produkte = laden('tikpromo_produkte', []);
+(function seedWebseiten(){
+  const seiten = [
+    { name: 'TestNavigator (ganze Webseite)', link: 'https://tool-webseite.pages.dev',
+      vorteile: ['Drei Tools an einem Ort: Carousel Creator, Kalender Generator Pro, Untertitelbrenner Pro', 'Läuft direkt im Browser, keine Installation nötig', 'Einmal zahlen statt Abo'],
+      zielgruppe: 'Content-Creator, die eigene Tools statt Abos suchen' },
+    { name: 'Zwergenbibliothek (ganze Webseite)', link: 'https://zwergenbibliothek.wordpress.com',
+      vorteile: ['Krimis (K17-Reihe), Kinderbücher (Lena und Max), Ratgeber und Workbooks an einem Ort', 'Alle Bücher der Autorin Nivora Graufeder', 'Modern, vielseitig, selbst geschrieben'],
+      zielgruppe: 'Leserinnen und Leser, die stöbern statt gezielt ein einzelnes Buch suchen' }
+  ];
+  let geaendert = false;
+  seiten.forEach((s, i)=>{
+    if(!produkte.some(p => p.link === s.link)){
+      produkte.push({ id: Date.now()+i, typ:'webseite', name: s.name, preis:0, prov:0, kategorie:'Webseite', zielgruppe: s.zielgruppe, vorteile: s.vorteile, link: s.link, stufe:'eigen', provEuro:0 });
+      geaendert = true;
+    }
+  });
+  if(geaendert) speichern('tikpromo_produkte', produkte);
+})();
 let skripte  = laden('tikpromo_skripte', []);
 
 /* ---------- Tabs ---------- */
@@ -816,36 +834,13 @@ function zumGenerator(id){
 }
 
 /* ---------- Skript-Generator ---------- */
-const SITE_PRODUKTE = {
-  'site-testnavigator': {
-    id: 'site-testnavigator', name: 'TestNavigator (ganze Webseite)', typ: 'webseite',
-    vorteile: ['Drei Tools an einem Ort: Carousel Creator, Kalender Generator Pro, Untertitelbrenner Pro', 'Läuft direkt im Browser, keine Installation nötig', 'Einmal zahlen statt Abo'],
-    zielgruppe: 'Content-Creator, die eigene Tools statt Abos suchen',
-    link: 'https://tool-webseite.pages.dev', kategorie: 'Webseite', preis: 0
-  },
-  'site-zwergenbibliothek': {
-    id: 'site-zwergenbibliothek', name: 'Zwergenbibliothek (ganze Webseite)', typ: 'webseite',
-    vorteile: ['Krimis (K17-Reihe), Kinderbücher (Lena und Max), Ratgeber und Workbooks an einem Ort', 'Alle Bücher der Autorin Nivora Graufeder', 'Modern, vielseitig, selbst geschrieben'],
-    zielgruppe: 'Leserinnen und Leser, die stöbern statt gezielt ein einzelnes Buch suchen',
-    link: 'https://zwergenbibliothek.wordpress.com', kategorie: 'Webseite', preis: 0
-  }
-};
-
-function holeAusgewaehltesProdukt(){
-  const raw = document.getElementById('gProdukt').value;
-  if(SITE_PRODUKTE[raw]) return SITE_PRODUKTE[raw];
-  const pid = parseInt(raw);
-  return produkte.find(x=>x.id===pid);
-}
-
 function produktDropdownFuellen(){
   const sel = document.getElementById('gProdukt');
-  const siteOptionen = `<option value="site-testnavigator">🌐 TestNavigator (ganze Webseite)</option><option value="site-zwergenbibliothek">🌐 Zwergenbibliothek (ganze Webseite)</option>`;
   if(produkte.length===0){
-    sel.innerHTML = siteOptionen;
+    sel.innerHTML = '<option value="">– erst ein Produkt anlegen –</option>';
     return;
   }
-  sel.innerHTML = siteOptionen + produkte.map(p=>{
+  sel.innerHTML = produkte.map(p=>{
     const typ = p.typ || 'affiliate';
     const preisTxt = p.preis > 0 ? p.preis.toFixed(2).replace('.',',')+' €' : 'gratis';
     return `<option value="${p.id}">${typLabels[typ].split(' ')[0]} ${esc(p.name)} (${preisTxt})</option>`;
@@ -926,7 +921,8 @@ function aktiveBibliothek(p){
 }
 
 function produktWechselAnzeige(){
-  const p = holeAusgewaehltesProdukt();
+  const pid = parseInt(document.getElementById('gProdukt').value);
+  const p = produkte.find(x=>x.id===pid);
   const neuBox = document.getElementById('version31Box');
   if(!p){ if(neuBox) neuBox.style.display='none'; return; }
   neuBox.style.display = '';
@@ -935,7 +931,8 @@ function produktWechselAnzeige(){
 }
 
 function blockNavigieren(richtung){
-  const p = holeAusgewaehltesProdukt();
+  const pid = parseInt(document.getElementById('gProdukt').value);
+  const p = produkte.find(x=>x.id===pid);
   const bib = p ? aktiveBibliothek(p) : WINKEL_SACH;
   const maxBlock = Math.ceil(bib.length / BLOCK_GROESSE) - 1;
   blockIndex = Math.min(maxBlock, Math.max(0, blockIndex + richtung));
@@ -943,7 +940,8 @@ function blockNavigieren(richtung){
 }
 
 function renderBlock(){
-  const p = holeAusgewaehltesProdukt();
+  const pid = parseInt(document.getElementById('gProdukt').value);
+  const p = produkte.find(x=>x.id===pid);
   const bib = p ? aktiveBibliothek(p) : WINKEL_SACH;
   const start = blockIndex * BLOCK_GROESSE;
   const ende = Math.min(start + BLOCK_GROESSE, bib.length);
@@ -963,7 +961,8 @@ function renderBlock(){
 }
 
 async function versionGenerieren(idx){
-  const p = holeAusgewaehltesProdukt();
+  const pid = parseInt(document.getElementById('gProdukt').value);
+  const p = produkte.find(x=>x.id===pid);
   if(!p){ alert('Bitte erst ein Produkt anlegen und auswählen.'); return; }
   if(!p.vorteile || p.vorteile.filter(Boolean).length < 1){ alert('Bitte beim Produkt mindestens einen Vorteil eintragen.'); return; }
 
@@ -1452,7 +1451,7 @@ async function paketGenerieren(){
     const preisTxt = frei ? 'gratis' : (p.preis > 0 ? p.preis.toFixed(2).replace('.',',') + ' €' : 'gratis');
     const link = p.link || '[Link hier einfügen]';
     const kennz = eigen ? 'kein zusätzlicher Werbe-Hinweis nötig, da eigenes Angebot' : '„(Werbung / Affiliate-Link)" am Ende ergänzen';
-    const wasIst = typ==='buch' ? 'ein eigenes Buch' : typ==='tool' ? 'ein eigenes digitales Tool' : typ==='freebie' ? 'ein kostenloses eigenes Freebie' : 'ein fremdes Produkt, das bewusst als Affiliate ausgewählt wurde';
+    const wasIst = typ==='buch' ? 'ein eigenes Buch' : typ==='tool' ? 'ein eigenes digitales Tool' : typ==='freebie' ? 'ein kostenloses eigenes Freebie' : typ==='webseite' ? 'die ganze eigene Webseite mit allen Produkten/Büchern darauf — keine Einzelprodukt-Werbung, sondern eine Einladung zum Stöbern' : 'ein fremdes Produkt, das bewusst als Affiliate ausgewählt wurde';
     const tonalitaet = (document.getElementById('gTonalitaet') && document.getElementById('gTonalitaet').value || '').trim();
 
     const systemPrompt = `Du schreibst ein komplettes Promo-Paket für Content-Creator, das aus mehreren Textbausteinen besteht, die aber inhaltlich zusammenpassen sollen wie aus einem Guss — nicht wie zufällig aneinandergereihte Bausteine. Die Person spricht selbst nicht im Video (KI-Avatar), aber alles soll klingen wie ein echter Mensch: warm, direkt, konkret, mit eigener Note. KEINE Marketing-Floskeln, keine leeren Superlative, kein 08/15-Werbesprech, keine generischen Füllsätze. Nutze die gegebenen Fakten wirklich.${tonalitaet ? ' Gewünschte Tonalität/Stimme: ' + tonalitaet + '.' : ''} Es geht um ${wasIst}. Werbekennzeichnung: ${kennz}. Bezugsquelle/Link: ${link}. Preis: ${preisTxt}.

@@ -482,7 +482,7 @@
   </div>
   <div class="card">
     <h2>Promo-Paket generieren</h2>
-    <p style="color:var(--muted);font-size:13px;margin-bottom:10px">Erstellt zum gewählten Produkt: HeyGen-Videoskript, 3 Facebook-Posts, eine E-Mail für MailerLite und einen Pinterest-Pin. Die Texte passen sich automatisch an: eigenes Produkt oder Affiliate.</p>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:10px">Erstellt zum gewählten Produkt: HeyGen-Videoskript, 3 Facebook-Posts, eine E-Mail für MailerLite, einen Pinterest-Pin und einen Werbetext für deine eigene Webseite (mit Link zur Landingpage). Die Texte passen sich automatisch an: eigenes Produkt oder Affiliate.</p>
     <label for="ppProdukt">Produkt auswählen</label>
     <select id="ppProdukt"></select>
     <button class="btn btn-gold" id="paketBtn" onclick="paketGenerieren()">🚀 Komplettes Paket erstellen</button>
@@ -500,17 +500,6 @@
     <h2>Pin-Bild-Prompt erstellen</h2>
     <label for="pinIdee">Worum geht es in deinem Pin?</label>
     <textarea id="pinIdee" placeholder="z. B. Untertitelbrenner Pro (TestNavigator) — Video rein, Untertitel raus, in Sekunden fertig"></textarea>
-    <label for="pinKomposition">Bildaufbau</label>
-    <select id="pinKomposition">
-      <option value="">Überrasch mich (zufällig)</option>
-      <option value="Nahaufnahme des Endergebnisses in Aktion — zeig das fertige Resultat, nicht den Prozess">Nahaufnahme vom Ergebnis</option>
-      <option value="Vorher/Nachher-Gegenüberstellung in einem Bild">Vorher / Nachher</option>
-      <option value="Flatlay von oben, Hauptmotiv umgeben von passenden Objekten">Flatlay von oben</option>
-      <option value="Point-of-View — aus der Perspektive der nutzenden Person, Hände sichtbar">Point-of-View</option>
-      <option value="Reines Grafik-Design mit großer Typografie als Hauptelement, kaum oder kein Foto-Motiv">Reines Grafik-Design</option>
-      <option value="Bildcollage: 3 kleine Schritte nebeneinander, die zum Ergebnis führen">Bildcollage (3 Schritte)</option>
-      <option value="Eine einzelne, ruhige Heldenszene mit viel Negativraum um das Hauptmotiv">Heldenszene</option>
-    </select>
     <button class="btn btn-primary" id="pinBtn" onclick="pinPromptErstellen()">📌 Prompt erstellen</button>
     <div id="pinBox"></div>
   </div>
@@ -545,8 +534,7 @@ async function pinPromptErstellen(){
     'Bildcollage: 3 kleine Schritte nebeneinander, die zum Ergebnis führen',
     'Eine einzelne, ruhige Heldenszene mit viel Negativraum um das Hauptmotiv'
   ];
-  const gewaehlt = document.getElementById('pinKomposition').value;
-  const komposition = gewaehlt || kompositionen[Math.floor(Math.random() * kompositionen.length)];
+  const komposition = kompositionen[Math.floor(Math.random() * kompositionen.length)];
 
   const btn = document.getElementById('pinBtn');
   const box = document.getElementById('pinBox');
@@ -567,10 +555,9 @@ Du kennst genau, was auf Pinterest tatsächlich gesucht, gespeichert und geliked
 - Saubere Komposition, kein visuelles Rauschen, kein überladener Hintergrund.
 - Im gesamten Bild darf NUR die Hook-Textzeile als lesbarer Text vorkommen — plus, falls eine Signatur mitgegeben wird, genau EINE winzige, dezente Signatur-Textzeile unten rechts (klein, deutlich kleiner als der Hook, geringer Kontrast). Keine weiteren Bildschirme, UI-Elemente, Zitate, Untertitel, Labels oder sonstiger erfundener Text irgendwo im Bild.
 - Wenn im Prompt eine Vorgabe für den Kompositionsansatz mitgegeben wird, halte dich exakt daran. Auch bei abstrakteren Kompositionsansätzen muss der Prompt konkrete, spezifische Details aus der eingegebenen Idee einbauen — kein austauschbares Stock-Motiv.
-- Niemals erfundene Zahlen, Beträge, Umsätze, Prozentangaben oder Erfolgsstatistiken ins Bild schreiben lassen (z. B. "€12.458,90" oder "+156%"), auch nicht als Beispiel oder Deko-Element auf einem Dashboard/Chart im Bild. Wenn ein Dashboard, Chart oder Diagramm Teil der Komposition ist, beschreibe es visuell (Balken, Kurven, Häkchen) OHNE konkrete Zahlen oder Prozentwerte im Prompt vorzugeben.
 - Das gesamte 2:3-Format muss bis zum unteren Rand bewusst gestaltet und gefüllt sein — kein großer leerer/toter Bereich unten. Schreibe das explizit in den Prompt ("composition fills the entire frame edge to edge, no empty or dead space at the bottom").
 
-Schreibe den Prompt selbst IMMER auf Englisch (Bildgeneratoren arbeiten damit am zuverlässigsten), außer bei der Hook-Textzeile und der Signatur selbst — die im Bild sichtbaren Textzeilen bleiben auf Deutsch. Setze die deutsche Hook-Textzeile im Prompt in genau EIN Paar doppelte Anführungszeichen, nie mehr, nie verschachtelt und nie doppelt am Ende (kein „Text"" oder "Text""). Der Prompt ist sehr konkret: Motiv, Komposition, Kameraperspektive, Licht, Farbpalette, Textur/Stil, Stimmung, die Hook-Textzeile mit Position/Kontrastfläche, Format-Hinweis.
+Schreibe den Prompt selbst IMMER auf Englisch (Bildgeneratoren arbeiten damit am zuverlässigsten), außer bei der Hook-Textzeile und der Signatur selbst — die im Bild sichtbaren Textzeilen bleiben auf Deutsch. Der Prompt ist sehr konkret: Motiv, Komposition, Kameraperspektive, Licht, Farbpalette, Textur/Stil, Stimmung, die Hook-Textzeile mit Position/Kontrastfläche, Format-Hinweis.
 
 Antworte AUSSCHLIESSLICH mit dem reinen Prompt-Text selbst — keine Anführungszeichen drumherum, kein JSON, kein Markdown, keine Einleitung, keine Erklärung. Nur der Prompt, direkt einsatzbereit zum Kopieren.`;
 
@@ -1002,17 +989,15 @@ async function skriptSchreibenKI(p, typ, version, laenge, apiKey){
   const systemPrompt = `Du schreibst kompletten Social-Media-Content für Content-Creator: ein TikTok/Instagram-Avatar-Video-Skript UND die dazu passenden Beitragstexte für TikTok, YouTube Shorts, Instagram und Pinterest — alles in einem Durchgang, damit es inhaltlich zusammenpasst statt wie zufällig zusammengeschnitten zu wirken. Die Person steht selbst nicht vor der Kamera — ein KI-Avatar spricht den Text —, aber alles soll klingen wie ein echter Mensch, der gerade persönlich spricht bzw. schreibt: warm, direkt, konkret, mit eigener Note. KEINE Marketing-Floskeln, keine leeren Superlative ("revolutionär", "game changer"), kein 08/15-Werbesprech, keine generischen Füllsätze wie "das Problem, das du kennst". Nutze die gegebenen Fakten wirklich — Produktname, Zielgruppe, die genannten Vorteile — statt austauschbarer Standardsätze. Schreib jeden Text als vollständigen, in sich abgeschlossenen Gedanken, schneide niemals einen Satz mitten ab. Variiere Satzlänge bewusst.${tonalitaet ? ' Gewünschte Tonalität/Stimme: ' + tonalitaet + '.' : ''} Es geht um ${typBeschreibung}.
 
 Antworte AUSSCHLIESSLICH mit einem JSON-Objekt ohne Markdown-Codeblock, ohne Einleitung, mit genau diesen Feldern:
-{"hook": "Video-Einstieg, erste 2-3 Sekunden, packend, max 2 Sätze. Steig SOFORT mit der Kernaussage, einer überraschenden Behauptung, einer konkreten Zahl oder einer direkten Frage ein. Verboten: jede Form von Anmoderation oder Aufwärmsatz ('Hey', 'Heute zeige ich euch', 'Wusstest du', 'Ich möchte dir zeigen', 'Lass uns über X sprechen'). Der erste Satz muss für sich allein schon zum Weiterschauen zwingen.",
+{"hook": "Video-Einstieg, erste 2-3 Sekunden, packend, max 2 Sätze",
 "haupt": "Hauptteil des Video-Skripts, mehrere Sätze mit \\n getrennt, Ziellänge etwa ${laenge} Sekunden Sprechzeit (grob ${Math.round(laenge*2.3)} Wörter für hook+haupt zusammen)",
 "cta": "Kurzer Call-to-Action-Satz fürs Video-Ende, der auf folgende Bezugsquelle hinweist — nutze sinngemäß genau diese Angabe: '${ort}'",
-"tiktok": "TikTok-Beitragstext, 2-4 Sätze plus Bezugsquelle plus '${werbung}' plus 4-6 passende deutsche Hashtags. Wiederhole NICHT den Produktnamen oder Titel wortgleich als eigenen Satz — der Beitragstext liefert eine zusätzliche Information, einen Kontext oder eine Pointe, die im Video/Titel noch nicht vorkam.",
+"tiktok": "TikTok-Beitragstext, 2-4 Sätze plus Bezugsquelle plus '${werbung}' plus 4-6 passende deutsche Hashtags",
 "youtube_titel": "YouTube-Shorts-Titel, max 95 Zeichen, eigenständiger vollständiger Satz oder Wortgruppe, kein Satzabbruch",
-"youtube_beschreibung": "YouTube-Beschreibung, eigenständiger Absatz, plus Bezugsquelle, plus '${werbung}', plus 3 Hashtags inkl. #shorts. Wiederhole NICHT den youtube_titel wortgleich als ersten Satz — steig mit einer neuen Information oder einem Detail ein, das der Titel noch nicht verraten hat.",
-"instagram": "Instagram-Beitragstext, ähnlich wie TikTok aber mit 3-5 Hashtags. Wiederhole NICHT den Produktnamen/Titel wortgleich als eigenen Satz.",
+"youtube_beschreibung": "YouTube-Beschreibung, eigenständiger Absatz, plus Bezugsquelle, plus '${werbung}', plus 3 Hashtags inkl. #shorts",
+"instagram": "Instagram-Beitragstext, ähnlich wie TikTok aber mit 3-5 Hashtags",
 "pinterest_titel": "Pinterest-Pin-Titel mit Suchbegriff vorne, max 100 Zeichen",
-"pinterest_beschreibung": "sachliche Pinterest-Beschreibung, plus Bezugsquelle, plus '${werbung}', plus 3-4 Hashtags. Wiederhole NICHT den pinterest_titel wortgleich als ersten Satz — ergänze ihn stattdessen um Details, die er noch nicht abdeckt."}
-
-Grundregel für alle Felder mit einem zugehörigen Titel: Titel und Text dürfen sich thematisch ergänzen, aber der Text darf den Titel niemals wortgleich oder fast wortgleich als eigenen ersten Satz wiederholen — das wirkt redundant und wie doppelt gemoppelt.
+"pinterest_beschreibung": "sachliche Pinterest-Beschreibung, plus Bezugsquelle, plus '${werbung}', plus 3-4 Hashtags"}
 
 Schreib alles auf Deutsch, in Ich-Perspektive der Person, die das Video macht — ohne einen Namen zu verwenden, da du nicht weißt, wer genau spricht.`;
 
@@ -1451,16 +1436,17 @@ async function paketGenerieren(){
     const systemPrompt = `Du schreibst ein komplettes Promo-Paket für Content-Creator, das aus mehreren Textbausteinen besteht, die aber inhaltlich zusammenpassen sollen wie aus einem Guss — nicht wie zufällig aneinandergereihte Bausteine. Die Person spricht selbst nicht im Video (KI-Avatar), aber alles soll klingen wie ein echter Mensch: warm, direkt, konkret, mit eigener Note. KEINE Marketing-Floskeln, keine leeren Superlative, kein 08/15-Werbesprech, keine generischen Füllsätze. Nutze die gegebenen Fakten wirklich.${tonalitaet ? ' Gewünschte Tonalität/Stimme: ' + tonalitaet + '.' : ''} Es geht um ${wasIst}. Werbekennzeichnung: ${kennz}. Bezugsquelle/Link: ${link}. Preis: ${preisTxt}.
 
 Antworte AUSSCHLIESSLICH mit einem JSON-Objekt ohne Markdown-Codeblock, ohne Einleitung, mit genau diesen Feldern:
-{"video": "Avatar-Videoskript für HeyGen, 30-45 Sekunden Sprechzeit, mit Hook, Hauptteil und Call-to-Action als durchgehender Text mit \\n zwischen den Absätzen. Der Hook (erste 2-3 Sekunden) steigt SOFORT mit Kernaussage, überraschender Behauptung, Zahl oder direkter Frage ein — keine Anmoderation wie 'Hey', 'Heute zeige ich euch', 'Ich möchte dir zeigen'.",
+{"video": "Avatar-Videoskript für HeyGen, 30-45 Sekunden Sprechzeit, mit Hook, Hauptteil und Call-to-Action als durchgehender Text mit \\n zwischen den Absätzen",
 "facebook_1": "Facebook-Post: Ankündigung, mit passendem Emoji-Einstieg und Link am Ende",
 "facebook_2": "Facebook-Post: Nutzen-fokussiert, mit 3 kurzen Stichpunkten (✅) zu den Vorteilen",
 "facebook_3": "Facebook-Post: Erinnerung/Reminder, etwas dringlicher, mit Link am Ende",
 "email_betreff": "eine einzige, überzeugende Betreffzeile für eine E-Mail",
-"email": "vollständige E-Mail für MailerLite, beginnend mit 'Hallo {\\$name},' persönlich geschrieben, mit Link, endet mit einem Gruß. Wiederhole NICHT die email_betreff wortgleich als ersten Satz.",
+"email": "vollständige E-Mail für MailerLite, beginnend mit 'Hallo {\\$name},' persönlich geschrieben, mit Link, endet mit einem Gruß",
 "pinterest_titel": "Pinterest-Pin-Titel mit Suchbegriff vorne, max 100 Zeichen",
-"pinterest_beschreibung": "sachliche Pinterest-Beschreibung mit 3-4 passenden Hashtags. Wiederhole NICHT den pinterest_titel wortgleich als ersten Satz — ergänze ihn stattdessen um Details, die er noch nicht abdeckt."}
-
-Grundregel: Ein Titel und sein zugehöriger Text dürfen sich ergänzen, aber der Text darf den Titel niemals wortgleich oder fast wortgleich als eigenen ersten Satz wiederholen.
+"pinterest_beschreibung": "sachliche Pinterest-Beschreibung mit 3-4 passenden Hashtags",
+"webseite_ueberschrift": "kurze, prägnante Überschrift für einen Werbeblock auf der eigenen Webseite (max 8 Wörter)",
+"webseite_text": "2-3 Sätze Werbetext für die eigene Webseite, der auf die Landingpage verlinkt werden soll — beschreibt Nutzen und Ergebnis, kein Fülltext",
+"webseite_cta": "kurzer Button-/Link-Text, z. B. 'Jetzt entdecken →'"}
 
 Schreib alles auf Deutsch, in Ich-Perspektive der Person, die postet — ohne einen Namen zu verwenden.`;
 
@@ -1492,6 +1478,7 @@ Schreib alles auf Deutsch, in Ich-Perspektive der Person, die postet — ohne ei
 
     const pinterest = 'Pin-Titel:\n' + paket.pinterest_titel + '\n\nPin-Beschreibung:\n' + paket.pinterest_beschreibung + '\n\nZiel-Link:\n' + link;
     const email = 'Betreff: ' + paket.email_betreff + '\n\n' + paket.email;
+    const webseite = paket.webseite_ueberschrift + '\n\n' + paket.webseite_text + '\n\n[' + paket.webseite_cta + '](' + link + ')';
 
     const bloecke = [
       { titel:'🎬 Avatar-Videoskript (für HeyGen)', text: paket.video },
@@ -1499,7 +1486,8 @@ Schreib alles auf Deutsch, in Ich-Perspektive der Person, die postet — ohne ei
       { titel:'📘 Facebook-Post 2 – Nutzen', text: paket.facebook_2 },
       { titel:'📘 Facebook-Post 3 – Erinnerung', text: paket.facebook_3 },
       { titel:'✉️ E-Mail für MailerLite', text: email },
-      { titel:'📌 Pinterest-Pin', text: pinterest }
+      { titel:'📌 Pinterest-Pin', text: pinterest },
+      { titel:'🌐 Werbetext für eigene Webseite', text: webseite }
     ];
 
     window._paket = bloecke;

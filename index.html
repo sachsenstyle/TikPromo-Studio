@@ -286,7 +286,7 @@
   <button data-tab="generator" onclick="zeigeTab('generator')">🎵 TikTok-Skripte</button>
   <button data-tab="paket" onclick="zeigeTab('paket')">🚀 Promo-Paket</button>
   <button data-tab="pinbild" onclick="zeigeTab('pinbild')">📌 Pin-Bild-Prompt</button>
-  <button data-tab="webseite" onclick="zeigeTab('webseite')">🌐 Webseiten-Text</button>
+  <button data-tab="webseite" onclick="zeigeTab('webseite')">🌐 Webseite bewerben</button>
   <button data-tab="archiv" onclick="zeigeTab('archiv')">✅ Meine Skripte</button>
 </nav>
 
@@ -506,17 +506,20 @@
   </div>
 </section>
 
-<!-- ============ TAB: WEBSEITEN-TEXT ============ -->
+<!-- ============ TAB: WEBSEITEN-CONTENT ============ -->
 <section id="tab-webseite">
   <div class="hinweis">
-    <strong>Für deine eigene Webseite:</strong> Erstellt einen Werbeblock (Überschrift, Text, Button/Link) zu einem deiner Produkte — zum Einfügen auf tool-webseite.pages.dev, zwergenbibliothek.wordpress.com oder einer anderen deiner Seiten. Der Text verlinkt automatisch zur passenden Landingpage.
+    <strong>Wirbt für die ganze Webseite, nicht für ein einzelnes Produkt:</strong> Statt jedes Buch oder Tool einzeln zu bewerben, entsteht hier Content, der Leute auf deinen Webseiten-Hub schickt — dort finden sie dann alles.
   </div>
   <div class="card">
-    <h2>Webseiten-Text erstellen</h2>
-    <label for="webProdukt">Produkt auswählen</label>
-    <select id="webProdukt"></select>
-    <button class="btn btn-primary" id="webBtn" onclick="webseiteTextErstellen()">🌐 Text erstellen</button>
-    <button class="btn btn-ghost" onclick="webseiteTextErstellen()" title="Erzeugt eine neue Version">🔄 Neu schreiben lassen</button>
+    <h2>Webseiten-Content erstellen</h2>
+    <label for="webSeite">Welche Webseite bewerben?</label>
+    <select id="webSeite">
+      <option value="testnavigator">TestNavigator – tool-webseite.pages.dev (alle 3 Tools)</option>
+      <option value="zwergenbibliothek">Zwergenbibliothek – zwergenbibliothek.wordpress.com (alle Bücher)</option>
+    </select>
+    <button class="btn btn-primary" id="webBtn" onclick="webseiteContentErstellen()">🌐 Content erstellen</button>
+    <button class="btn btn-ghost" onclick="webseiteContentErstellen()" title="Erzeugt eine neue Version">🔄 Neu schreiben lassen</button>
     <div id="webBox"></div>
   </div>
 </section>
@@ -640,7 +643,6 @@ function zeigeTab(name){
   if(name==='generator'){ produktDropdownFuellen(); produktWechselAnzeige(); }
   if(name==='archiv') archivRendern();
   if(name==='paket') paketDropdownFuellen();
-  if(name==='webseite') webseiteDropdownFuellen();
 }
 
 /* ---------- Produkttyp & Kategorien ---------- */
@@ -1525,54 +1527,48 @@ typWechsel();
 tonalitaetLaden();
 produktListeRendern();
 
-/* ---------- Webseiten-Text ---------- */
-function webseiteDropdownFuellen(){
-  const sel = document.getElementById('webProdukt');
-  if(produkte.length===0){
-    sel.innerHTML = '<option value="">– erst ein Produkt anlegen –</option>';
-    return;
-  }
-  sel.innerHTML = produkte.map(p=>{
-    const typ = p.typ || 'affiliate';
-    const preisTxt = p.preis > 0 ? p.preis.toFixed(2).replace('.',',')+' €' : 'gratis';
-    return `<option value="${p.id}">${typLabels[typ].split(' ')[0]} ${esc(p.name)} (${preisTxt})</option>`;
-  }).join('');
-}
-
-async function webseiteTextErstellen(){
-  const pid = parseInt(document.getElementById('webProdukt').value);
-  const p = produkte.find(x=>x.id===pid);
-  if(!p){ alert('Bitte erst ein Produkt anlegen und auswählen.'); return; }
-  if(!p.vorteile || p.vorteile.filter(Boolean).length < 1){ alert('Bitte beim Produkt mindestens einen Vorteil eintragen.'); return; }
-
+/* ---------- Webseiten-Content ---------- */
+async function webseiteContentErstellen(){
+  const seite = document.getElementById('webSeite').value;
   const apiKey = laden('launchpromoter_apikey', '');
   if(!apiKey){ alert('Bitte zuerst oben im Produktfinder deinen API-Schlüssel eintragen und speichern.'); zeigeTab('finder'); return; }
 
+  const seiten = {
+    testnavigator: {
+      name: 'TestNavigator',
+      link: 'https://tool-webseite.pages.dev',
+      beschreibung: 'Zentrale Webseite mit drei digitalen Tools an einem Ort: Carousel Creator (fertige Instagram-Karussells), Kalender Generator Pro (eigene Kalender gestalten) und Untertitelbrenner Pro (Untertitel direkt ins Video einbrennen). Alle Tools laufen im Browser, keine Installation, kein Abo — einmal zahlen, für immer nutzen.'
+    },
+    zwergenbibliothek: {
+      name: 'Zwergenbibliothek',
+      link: 'https://zwergenbibliothek.wordpress.com',
+      beschreibung: 'Autorenwebsite von Nivora Graufeder mit allen Büchern an einem Ort: Krimis (K17-Reihe), Kinderbücher (Lena und Max), Ratgeber und Workbooks. Modern, vielseitig, selbst geschrieben.'
+    }
+  };
+  const s = seiten[seite];
+
   const btn = document.getElementById('webBtn');
   if(btn){ btn.disabled = true; btn.textContent = '⏳ wird geschrieben…'; }
-  document.getElementById('webBox').innerHTML = '<p style="color:var(--muted);font-size:13px">Der Werbetext wird gerade geschrieben – das dauert einen Moment …</p>';
+  document.getElementById('webBox').innerHTML = '<p style="color:var(--muted);font-size:13px">Der Content wird gerade geschrieben – das dauert einen Moment …</p>';
 
   try{
-    const typ = p.typ || 'affiliate';
-    const eigen = (typ !== 'affiliate');
-    const frei = (typ === 'freebie');
-    const ziel = p.zielgruppe || 'alle, die online durchstarten wollen';
-    const preisTxt = frei ? 'gratis' : (p.preis > 0 ? p.preis.toFixed(2).replace('.',',') + ' €' : 'gratis');
-    const link = p.link || '[Link hier einfügen]';
-    const kennz = eigen ? 'kein zusätzlicher Werbe-Hinweis nötig, da eigenes Angebot' : '„(Werbung / Affiliate-Link)" ergänzen';
-    const wasIst = typ==='buch' ? 'ein eigenes Buch' : typ==='tool' ? 'ein eigenes digitales Tool' : typ==='freebie' ? 'ein kostenloses eigenes Freebie' : 'ein fremdes Produkt, das bewusst als Affiliate ausgewählt wurde';
     const tonalitaet = (document.getElementById('gTonalitaet') && document.getElementById('gTonalitaet').value || '').trim();
 
-    const systemPrompt = `Du schreibst einen kurzen Werbeblock für die eigene Webseite (Landingpage-Teaser), der Besucher zum Klick auf einen Link bewegen soll. Klingt wie ein echter Mensch: warm, direkt, konkret, mit eigener Note. KEINE Marketing-Floskeln, keine leeren Superlative, kein 08/15-Werbesprech.${tonalitaet ? ' Gewünschte Tonalität/Stimme: ' + tonalitaet + '.' : ''} Es geht um ${wasIst}. Werbekennzeichnung: ${kennz}. Preis: ${preisTxt}.
+    const systemPrompt = `Du schreibst Werbe-Content, der nicht ein einzelnes Produkt bewirbt, sondern die ganze Webseite ${s.name} als Sammelstelle — Leute sollen dort vorbeischauen und sich alles in Ruhe anschauen, statt nur ein einzelnes Buch/Tool zu kaufen. Klingt wie ein echter Mensch: warm, direkt, konkret, mit eigener Note. KEINE Marketing-Floskeln, keine leeren Superlative, kein 08/15-Werbesprech. Kein Markenvergleich zu anderen Apps/Marken.${tonalitaet ? ' Gewünschte Tonalität/Stimme: ' + tonalitaet + '.' : ''}
+
+Webseite: ${s.name}
+Was es dort zu finden gibt: ${s.beschreibung}
+Link: ${s.link}
 
 Antworte AUSSCHLIESSLICH mit einem JSON-Objekt ohne Markdown-Codeblock, ohne Einleitung, mit genau diesen Feldern:
-{"ueberschrift": "kurze, prägnante Überschrift (max 8 Wörter)",
-"text": "2-3 Sätze Werbetext, beschreibt Nutzen und Ergebnis, kein Fülltext",
-"cta": "kurzer Button-/Link-Text, z. B. 'Jetzt entdecken →'"}
+{"video": "Avatar-Videoskript für HeyGen, 30-45 Sekunden Sprechzeit, lädt zum Besuch der ganzen Webseite ein statt ein Einzelprodukt zu bewerben, mit Hook, Hauptteil und Call-to-Action als durchgehender Text mit \\n zwischen den Absätzen",
+"facebook": "Facebook-Post, der neugierig auf die ganze Webseite macht, mit Link am Ende",
+"pinterest_titel": "Pinterest-Pin-Titel mit Suchbegriff vorne, max 100 Zeichen",
+"pinterest_beschreibung": "sachliche Pinterest-Beschreibung mit 3-4 passenden Hashtags",
+"email_betreff": "eine einzige, überzeugende Betreffzeile für eine E-Mail",
+"email": "vollständige E-Mail für MailerLite, beginnend mit 'Hallo {\\$name},' persönlich geschrieben, lädt zum Stöbern auf der ganzen Webseite ein, mit Link, endet mit einem Gruß"}
 
 Schreib alles auf Deutsch, in Ich-Perspektive der Person, ohne einen Namen zu verwenden.`;
-
-    const userMsg = `Produkt: ${p.name}\nZielgruppe: ${ziel}\nDie stärksten Vorteile: ${p.vorteile.filter(Boolean).join(' / ')}\nKategorie: ${p.kategorie || ''}`;
 
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -1584,9 +1580,9 @@ Schreib alles auf Deutsch, in Ich-Perspektive der Person, ohne einen Namen zu ve
       },
       body: JSON.stringify({
         model: "claude-sonnet-4-6",
-        max_tokens: 500,
+        max_tokens: 1200,
         system: systemPrompt,
-        messages: [{ role: "user", content: userMsg }]
+        messages: [{ role: "user", content: `Schreib den Webseiten-Content für ${s.name}.` }]
       })
     });
 
@@ -1598,24 +1594,32 @@ Schreib alles auf Deutsch, in Ich-Perspektive der Person, ohne einen Namen zu ve
     if(!jsonMatch) throw new Error('Keine strukturierte Antwort erhalten');
     const paket = JSON.parse(jsonMatch[0]);
 
-    const voll = paket.ueberschrift + '\n\n' + paket.text + '\n\n[' + paket.cta + '](' + link + ')';
-    window._webseiteText = voll;
+    const pinterest = 'Pin-Titel:\n' + paket.pinterest_titel + '\n\nPin-Beschreibung:\n' + paket.pinterest_beschreibung + '\n\nZiel-Link:\n' + s.link;
+    const email = 'Betreff: ' + paket.email_betreff + '\n\n' + paket.email;
 
-    document.getElementById('webBox').innerHTML = `
+    const bloecke = [
+      { titel:'🎬 Avatar-Videoskript (für HeyGen)', text: paket.video },
+      { titel:'📘 Facebook-Post', text: paket.facebook },
+      { titel:'📌 Pinterest-Pin', text: pinterest },
+      { titel:'✉️ E-Mail für MailerLite', text: email }
+    ];
+
+    window._webseiteContent = bloecke;
+    document.getElementById('webBox').innerHTML = bloecke.map((b,i)=>`
       <div class="paket-block">
         <div class="kopf">
-          <span class="titel">🌐 Werbetext für eigene Webseite</span>
-          <button class="btn btn-gold btn-sm" onclick="kopieren(window._webseiteText)">📋 Kopieren</button>
+          <span class="titel">${b.titel}</span>
+          <button class="btn btn-gold btn-sm" onclick="kopieren(window._webseiteContent[${i}].text)">📋 Kopieren</button>
         </div>
-        <div class="inhalt">${esc(voll)}</div>
-      </div>`;
+        <div class="inhalt">${esc(b.text)}</div>
+      </div>`).join('');
 
   }catch(err){
     console.error(err);
-    document.getElementById('webBox').innerHTML = `<p style="color:var(--pink);font-size:13px">Text konnte nicht erstellt werden: ${esc(err.message)} — versuch es gleich nochmal.</p>`;
+    document.getElementById('webBox').innerHTML = `<p style="color:var(--pink);font-size:13px">Content konnte nicht erstellt werden: ${esc(err.message)} — versuch es gleich nochmal.</p>`;
   }
 
-  if(btn){ btn.disabled = false; btn.textContent = '🌐 Text erstellen'; }
+  if(btn){ btn.disabled = false; btn.textContent = '🌐 Content erstellen'; }
 }
 </script>
 </body>

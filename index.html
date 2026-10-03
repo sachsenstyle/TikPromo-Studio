@@ -1003,11 +1003,23 @@ async function skriptSchreibenKI(p, typ, version, laenge, apiKey){
     webseite: 'die ganze eigene Webseite mit allen Produkten/Büchern darauf — nicht nur ein einzelnes Produkt, sondern eine Einladung, dort in Ruhe zu stöbern'
   }[typ] || 'ein Produkt';
 
-  const ort = typ==='buch' ? 'Erhältlich bei Amazon. Dazu eine Einladung, ein kurzes, zum Thema passendes Stichwort in die Kommentare zu schreiben – dann kommt der Link per Nachricht.'
-            : typ==='affiliate' ? 'Direkt über den Warenkorb im Video bestellbar.'
-            : typ==='freebie' ? 'Gratis. Dazu eine Einladung, ein kurzes, zum Thema passendes Stichwort in die Kommentare zu schreiben – dann kommt der Link per Nachricht.'
-            : typ==='webseite' ? 'Eine Einladung, ein kurzes Stichwort in die Kommentare zu schreiben – dann kommt der Link zur Webseite per Nachricht.'
-            : 'Eine Einladung, ein kurzes, zum Thema passendes Stichwort in die Kommentare zu schreiben – dann kommt der Link per Nachricht.';
+  const CTA_ARTEN = [
+    'Stichwort für den Link: Bitte darum, ein kurzes Stichwort in die Kommentare zu schreiben, das genau zum Thema DIESES Videos passt (nicht automatisch der Produktname) – dann kommt der Link per Nachricht.',
+    'Ja/Nein-Frage: Stell eine einfache Frage zum Thema des Videos, die man mit Ja oder Nein in den Kommentaren beantworten kann.',
+    'Erfahrungs-Frage: Bitte die Zuschauer, eine eigene kleine Erfahrung oder Erinnerung zum Thema in die Kommentare zu schreiben („Erzähl mal …“).',
+    'Entweder-oder: Stell eine Entweder-oder-Frage zum Thema („Team A oder Team B?“), die man mit einem Wort beantwortet.',
+    'Markieren: Bitte darum, jemanden in den Kommentaren zu markieren, für den das Thema des Videos passt.',
+    'Emoji-Antwort: Bitte darum, mit einem bestimmten, zum Thema passenden Emoji zu antworten, wenn man etwas kennt oder ausprobieren möchte.',
+    'Ergänzen: Bitte die Zuschauer, in den Kommentaren zu ergänzen, was in deiner Aufzählung oder deinem Tipp noch fehlt.',
+    'Speichern: Bitte darum, das Video zu speichern – NUR wählen, wenn das Video einen konkreten, später nützlichen Tipp enthält; sonst stattdessen eine Ja/Nein-Frage.'
+  ];
+  let ctaIdx = Math.floor(Math.random()*CTA_ARTEN.length);
+  const letzteCta = parseInt(laden('promo_letzte_cta', -1));
+  if(ctaIdx === letzteCta) ctaIdx = (ctaIdx + 1) % CTA_ARTEN.length;
+  speichern('promo_letzte_cta', ctaIdx);
+  const ctaArt = CTA_ARTEN[ctaIdx];
+  const ort = typ==='affiliate' ? 'Direkt über den Warenkorb im Video bestellbar.'
+            : (typ==='buch' ? 'Erwähne kurz, dass es bei Amazon erhältlich ist. ' : typ==='freebie' ? 'Erwähne kurz, dass es gratis ist. ' : '') + 'Art der Aufforderung für DIESES Video: ' + ctaArt;
   const werbung = typ==='affiliate' ? 'Werbung' : 'Werbung (in eigener Sache)';
   const tonalitaet = (document.getElementById('gTonalitaet').value || '').trim();
   const preisTxt = p.preis.toFixed(2).replace('.',',');
@@ -1017,7 +1029,7 @@ async function skriptSchreibenKI(p, typ, version, laenge, apiKey){
 Antworte AUSSCHLIESSLICH mit einem JSON-Objekt ohne Markdown-Codeblock, ohne Einleitung, mit genau diesen Feldern:
 {"hook": "Video-Einstieg, erste 2-3 Sekunden, packend, höchstens 6 Wörter",
 "haupt": "Hauptteil des Video-Skripts, mehrere Sätze mit \\n getrennt, Ziellänge etwa ${laenge} Sekunden Sprechzeit (grob ${Math.round(laenge*2.3)} Wörter für hook+haupt zusammen)",
-"cta": "Kurzer Call-to-Action-Satz fürs Video-Ende, der auf folgende Bezugsquelle hinweist — nutze sinngemäß genau diese Angabe: '${ort}'",
+"cta": "Kurzer Call-to-Action-Satz fürs Video-Ende. Vorgabe dafür: ${ort}",
 "tiktok": "TikTok-Beitragstext, 2-4 Sätze plus Bezugsquelle plus '${werbung}' plus 4-6 passende deutsche Hashtags",
 "youtube_titel": "YouTube-Shorts-Titel, max 95 Zeichen, eigenständiger vollständiger Satz oder Wortgruppe, kein Satzabbruch",
 "youtube_beschreibung": "YouTube-Beschreibung, eigenständiger Absatz, plus Bezugsquelle, plus '${werbung}', plus 3 Hashtags inkl. #shorts",
@@ -1034,12 +1046,13 @@ Schreib alles auf Deutsch, in Ich-Perspektive der Person, die das Video macht �
 
 FESTE REGELN (gelten immer, ohne Ausnahme):
 - Niemals „Link in der Bio“, „Link im Profil“ oder Ähnliches schreiben.
-- Der Call-to-Action lädt zum Kommentieren ein: entweder ein kurzes Stichwort in die Kommentare („Schreib ‚Kräuter‘ in die Kommentare …“) oder eine einfache Frage, die man mit einem Wort oder einer kleinen Geschichte beantworten kann.
+- Der Call-to-Action lädt zum Mitmachen ein (kommentieren, antworten, markieren, speichern) und ist bei jedem Video anders formuliert — keine Standardfloskel, die immer wiederkommt.
 - Der Hook ist kurz und bündig: höchstens 6 Wörter. Die Beschreibung sagt dann alles.
 - Keine Markennamen fremder Firmen oder Apps (z. B. Google, Canva, WhatsApp, ChatGPT) und keine Vergleiche mit ihnen. Stattdessen allgemein formulieren („das Internet“, „ein Grafikprogramm“).
 - Keine erfundenen Erfahrungen oder Häufigkeiten wie „die Frage, die ich am häufigsten höre“ oder „viele schreiben mir“. Stattdessen z. B. „Vielleicht fragst du dich …“.
 - Keine Geld- oder Einkommensversprechen, keine Renditeversprechen, keine erfundenen Zahlen.
-- Geht es um Gesundheit, Hausmittel oder Heilkräuter: keine Heilversprechen, und im Beitragstext den Hinweis „Ersetzt keine ärztliche Beratung.“ ergänzen.`;
+- Geht es um Gesundheit, Hausmittel oder Heilkräuter: keine Heilversprechen und keine Wirkung als bewiesene Tatsache darstellen. Verboten sind Wörter wie „nachweisbar“, „wissenschaftlich belegt“, „bewiesen“, „heilt“, „wirkt gegen“, „hilft garantiert“ — auch im Hook und in den Bildtexten. Stattdessen überliefert formulieren: „traditionell genutzt“, „aus Omas Hausapotheke“, „gilt als …“, oder als Frage („Lavendel zum Entspannen?“). Im Beitragstext immer den Hinweis „Ersetzt keine ärztliche Beratung.“ ergänzen.
+- Prüfe vor der Antwort jeden Text, besonders bildtext_oben und bildtext_unten, Wort für Wort auf Rechtschreibung und doppelte Silben (z. B. „Schrschreib“).`;
 
   const userMsg = `Produkt: ${p.name}\nZielgruppe: ${p.zielgruppe || 'nicht näher angegeben'}\nDie stärksten Vorteile: ${p.vorteile.filter(Boolean).join(' / ')}\nKategorie: ${p.kategorie || ''}\nPreis: ${preisTxt} €\nBlickwinkel für dieses Skript: ${version.kategorie} — ${version.titel}. Regieanweisung: ${version.richtung}`;
 
@@ -1510,12 +1523,13 @@ Schreib alles auf Deutsch, in Ich-Perspektive der Person, die postet — ohne ei
 
 FESTE REGELN (gelten immer, ohne Ausnahme):
 - Niemals „Link in der Bio“, „Link im Profil“ oder Ähnliches schreiben.
-- Der Call-to-Action lädt zum Kommentieren ein: entweder ein kurzes Stichwort in die Kommentare („Schreib ‚Kräuter‘ in die Kommentare …“) oder eine einfache Frage, die man mit einem Wort oder einer kleinen Geschichte beantworten kann.
+- Der Call-to-Action lädt zum Mitmachen ein (kommentieren, antworten, markieren, speichern) und ist bei jedem Video anders formuliert — keine Standardfloskel, die immer wiederkommt.
 - Der Hook ist kurz und bündig: höchstens 6 Wörter. Die Beschreibung sagt dann alles.
 - Keine Markennamen fremder Firmen oder Apps (z. B. Google, Canva, WhatsApp, ChatGPT) und keine Vergleiche mit ihnen. Stattdessen allgemein formulieren („das Internet“, „ein Grafikprogramm“).
 - Keine erfundenen Erfahrungen oder Häufigkeiten wie „die Frage, die ich am häufigsten höre“ oder „viele schreiben mir“. Stattdessen z. B. „Vielleicht fragst du dich …“.
 - Keine Geld- oder Einkommensversprechen, keine Renditeversprechen, keine erfundenen Zahlen.
-- Geht es um Gesundheit, Hausmittel oder Heilkräuter: keine Heilversprechen, und im Beitragstext den Hinweis „Ersetzt keine ärztliche Beratung.“ ergänzen.
+- Geht es um Gesundheit, Hausmittel oder Heilkräuter: keine Heilversprechen und keine Wirkung als bewiesene Tatsache darstellen. Verboten sind Wörter wie „nachweisbar“, „wissenschaftlich belegt“, „bewiesen“, „heilt“, „wirkt gegen“, „hilft garantiert“ — auch im Hook und in den Bildtexten. Stattdessen überliefert formulieren: „traditionell genutzt“, „aus Omas Hausapotheke“, „gilt als …“, oder als Frage („Lavendel zum Entspannen?“). Im Beitragstext immer den Hinweis „Ersetzt keine ärztliche Beratung.“ ergänzen.
+- Prüfe vor der Antwort jeden Text, besonders bildtext_oben und bildtext_unten, Wort für Wort auf Rechtschreibung und doppelte Silben (z. B. „Schrschreib“).
 - Ausnahme Facebook, E-Mail und Pinterest: Dort darf der Link direkt im Text stehen.`;
 
     const userMsg = `Produkt: ${p.name}\nZielgruppe: ${ziel}\nDie stärksten Vorteile: ${p.vorteile.filter(Boolean).join(' / ')}\nKategorie: ${p.kategorie || ''}`;

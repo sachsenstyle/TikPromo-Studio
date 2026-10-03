@@ -440,7 +440,7 @@
     <h2>Skript erstellen</h2>
     <label for="gProdukt">Produkt auswählen</label>
     <select id="gProdukt" onchange="produktWechselAnzeige()"></select>
-    <p style="color:var(--muted);font-size:13px;margin-top:6px">Der Schluss des Skripts passt sich automatisch an: Buch → Amazon, Tool → Link in Bio, Freebie → gratis, Affiliate → Warenkorb.</p>
+    <p style="color:var(--muted);font-size:13px;margin-top:6px">Der Schluss des Skripts lädt immer zum Kommentieren ein (Stichwort oder Frage) – nie „Link in der Bio“. Affiliate → Warenkorb.</p>
     <label for="gLaenge">Videolänge</label>
     <select id="gLaenge">
       <option value="12">ca. 10-15 Sekunden</option>
@@ -873,37 +873,24 @@ function zufall(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
 
 /* Für Tools, Sachbücher/Ratgeber, Freebies und Affiliate-Produkte: Problem -> Lösung im Zentrum */
 const WINKEL_SACH = [
-  { kategorie:'Problem → Lösung', titel:'Klassisch', richtung:'Beschreibe zuerst konkret und bildhaft das Problem, das die Zielgruppe hat. Zeig dann, wie das Produkt genau das löst.' },
-  { kategorie:'Problem → Lösung', titel:'Direkt', richtung:'Steig ohne Umschweife direkt mit der Lösung ein — kein langes Vorgeplänkel, sofort auf den Punkt.' },
-  { kategorie:'Problem → Lösung', titel:'Mit Frage', richtung:'Eröffne mit einer ehrlichen, direkten Frage an die Zielgruppe, die ihr Problem trifft. Beantworte sie dann mit dem Produkt.' },
-  { kategorie:'Problem → Lösung', titel:'Emotional', richtung:'Erzähl aus einer persönlichen, emotionalen Perspektive, wie nervig das Problem war — und wie sich die Lösung angefühlt hat.' },
-  { kategorie:'3 Gründe', titel:'Klassisch', richtung:'Nenne drei konkrete, unterschiedliche Gründe, warum sich das Produkt lohnt. Jeder Grund soll wirklich eigenständig sein, nicht nur umformuliert.' },
-  { kategorie:'3 Gründe', titel:'Nummeriert kurz', richtung:'Sehr knapp, fast stichpunktartig: drei kurze, prägnante Gründe hintereinander, kein Geschwafel.' },
-  { kategorie:'3 Gründe', titel:'Mit Zahlen-Hook', richtung:'Beginne mit einer Ankündigung ("gleich bekommst du 3 Gründe...") und liefere dann drei konkrete Gründe, der letzte als Favorit hervorgehoben.' },
-  { kategorie:'Storytelling', titel:'Ich-Erfahrung', richtung:'Erzähl als kleine persönliche Anekdote, wie du selbst auf das Produkt gestoßen bist und was dich überrascht hat.' },
-  { kategorie:'Storytelling', titel:'Skeptisch-dann-überzeugt', richtung:'Erzähl, dass du anfangs skeptisch warst — und was dich dann überzeugt hat. Ehrlich, nicht übertrieben.' },
-  { kategorie:'Storytelling', titel:'Zeitsprung', richtung:'Vergleiche kurz "früher ohne" mit "heute mit" dem Produkt, als kleine persönliche Zeitreise.' },
-  { kategorie:'Mythos vs. Wahrheit', titel:'Ein Mythos', richtung:'Nenne einen verbreiteten Irrglauben zu diesem Thema und stelle ihm die Wahrheit gegenüber, die das Produkt zeigt.' },
-  { kategorie:'Mythos vs. Wahrheit', titel:'Zwei Mythen', richtung:'Räume mit zwei kurzen Mythen auf, die viele über dieses Thema glauben, und kontere jeweils mit einer echten Tatsache zum Produkt.' },
-  { kategorie:'Mythos vs. Wahrheit', titel:'Direkter Widerspruch', richtung:'Widersprich direkt einer gängigen Annahme und beweise mit dem Produkt das Gegenteil.' },
-  { kategorie:'Vorher/Nachher', titel:'Klassisch', richtung:'Zeichne ein klares Vorher-Nachher-Bild: wie es ohne das Produkt war, wie es damit ist.' },
-  { kategorie:'Vorher/Nachher', titel:'Mit Zahl', richtung:'Mach den Vorher-Nachher-Unterschied möglichst konkret und greifbar, mit einer realistischen Einschätzung von Zeit- oder Mühe-Ersparnis.' },
-  { kategorie:'Vorher/Nachher', titel:'Alltagsszene', richtung:'Beschreibe eine ganz normale Alltagsszene einmal ohne und einmal mit dem Produkt.' },
-  { kategorie:'FAQ', titel:'Häufigste Frage', richtung:'Greif die Frage auf, die zu diesem Produkt am häufigsten gestellt wird, und beantworte sie ehrlich und konkret.' },
-  { kategorie:'FAQ', titel:'Skepsis-Frage', richtung:'Greif eine skeptische Frage auf ("ist das nicht too good to be true?") und entkräfte sie ehrlich mit Fakten zum Produkt.' },
-  { kategorie:'FAQ', titel:'Preis-Frage', richtung:'Beantworte die Frage "was kostet das und lohnt sich das?" ehrlich und konkret.' },
-  { kategorie:'Fehler', titel:'Der eine Fehler', richtung:'Beschreibe den einen typischen Fehler, den viele in diesem Bereich machen, und wie das Produkt genau davor bewahrt.' },
-  { kategorie:'Fehler', titel:'3 Fehler kurz', richtung:'Zähl kurz drei typische Fehler auf, die das Produkt auf einen Schlag verhindert.' },
-  { kategorie:'Fehler', titel:'Fehler den man selbst gemacht hat', richtung:'Erzähl von einem Fehler, den du selbst gemacht hast, bevor du die Lösung gefunden hast.' },
-  { kategorie:'Quick-Tipp', titel:'30-Sekunden-Tipp', richtung:'Ein knapper, schneller Tipp, der direkt zum Produkt führt — kein Umweg.' },
-  { kategorie:'Quick-Tipp', titel:'Ein Satz Tipp', richtung:'Bring die Kernaussage in möglichst wenigen, prägnanten Worten auf den Punkt.' },
-  { kategorie:'Quick-Tipp', titel:'Tipp mit Bonus', richtung:'Ein Haupttipp plus ein kleiner Bonus-Vorteil obendrauf.' },
-  { kategorie:'Vergleich', titel:'Vorher genutzt vs. jetzt', richtung:'Vergleiche eine typische frühere/andere Lösung mit diesem Produkt — was ist wirklich besser?' },
-  { kategorie:'Vergleich', titel:'Teuer vs. günstig', richtung:'Stell das Produkt einer teureren Alternative gegenüber und zeig, warum der Preis hier fair ist.' },
-  { kategorie:'Vergleich', titel:'Zeitaufwand-Vergleich', richtung:'Vergleiche den Zeit- oder Mühe-Aufwand ohne das Produkt mit dem Aufwand damit.' },
-  { kategorie:'Behind the Scenes', titel:'Warum entstanden/gewählt', richtung:'Erzähl ehrlich, warum genau dieses Produkt erstellt bzw. ausgesucht wurde, um es zu zeigen.' },
-  { kategorie:'Behind the Scenes', titel:'Wie es entstanden ist', richtung:'Ein kurzer, ehrlicher Blick hinter die Kulissen: wie ist es entstanden, was war der Auslöser?' },
-  { kategorie:'Behind the Scenes', titel:'Ehrlicher Blick', richtung:'Ganz ohne Marketing-Sprech: was steckt wirklich dahinter, für wen ist es wirklich gemacht?' }
+  { kategorie:'Problem → Lösung', titel:'Klassisch', richtung:'Beschreibe zuerst konkret und bildhaft ein Problem, das die Zielgruppe wirklich hat. Zeig dann, wie das Produkt genau das löst.' },
+  { kategorie:'Frage an dich', titel:'Direkte Frage', richtung:'Eröffne mit einer kurzen, ehrlichen Frage an die Zielgruppe, die sie sofort mit Ja oder Nein beantworten kann. Führe dann zum Produkt.' },
+  { kategorie:'3 Gründe', titel:'Drei Gründe', richtung:'Nenne drei wirklich unterschiedliche Gründe, warum sich das Produkt lohnt — kurz und konkret, der letzte als persönlicher Favorit.' },
+  { kategorie:'Wusstest du schon?', titel:'Überraschende Tatsache', richtung:'Steig mit einer überraschenden, aber wahren Tatsache aus dem Thema des Produkts ein (keine erfundenen Zahlen). Zeig dann, dass das Produkt noch mehr solches Wissen bietet.' },
+  { kategorie:'Mythos vs. Wahrheit', titel:'Ein Irrglaube', richtung:'Nenne einen verbreiteten Irrglauben zum Thema und stelle ihm die Wahrheit gegenüber, die im Produkt steckt.' },
+  { kategorie:'Der typische Fehler', titel:'Ein Fehler', richtung:'Beschreibe einen typischen Fehler, den viele in diesem Bereich machen, und wie das Produkt davor bewahrt.' },
+  { kategorie:'Quick-Tipp', titel:'Sofort umsetzbar', richtung:'Gib einen einzigen, sofort umsetzbaren Tipp aus dem Inhalt des Produkts. Der Tipp selbst muss echten Nutzen haben — das Produkt kommt erst am Ende.' },
+  { kategorie:'Schritt für Schritt', titel:'In 3 Schritten', richtung:'Zeig in drei kurzen Schritten, wie man etwas Konkretes mit dem Produkt umsetzt.' },
+  { kategorie:'Alltagsszene', titel:'Vorher / Nachher', richtung:'Beschreibe eine ganz normale Alltagsszene einmal ohne und einmal mit dem Produkt — ohne Zahlen zu erfinden.' },
+  { kategorie:'Blick ins Produkt', titel:'Ein Detail zeigen', richtung:'Greif ein einziges, konkretes Detail aus dem Produkt heraus (ein Kapitel, eine Seite, eine Funktion) und mach neugierig auf den Rest.' },
+  { kategorie:'Ehrlich', titel:'Für wen – und für wen nicht', richtung:'Sag ehrlich, für wen das Produkt genau richtig ist — und für wen eher nicht. Diese Ehrlichkeit schafft Vertrauen.' },
+  { kategorie:'Einwand', titel:'Ehrliche Antwort', richtung:'Greif einen naheliegenden Einwand auf, eingeleitet mit „Vielleicht fragst du dich …“ (z. B. ob es sich lohnt oder ob man das nicht auch so findet), und beantworte ihn ehrlich.' },
+  { kategorie:'Persönlich', titel:'Wie es entstanden ist', richtung:'Erzähl kurz und persönlich, warum und wie dieses Produkt entstanden ist — mit einem echten Gefühl, ohne Übertreibung.' },
+  { kategorie:'Persönlich', titel:'Hinter den Kulissen', richtung:'Ein ehrlicher Blick hinter die Kulissen: was war schwierig, was hat Freude gemacht, was steckt an Arbeit drin.' },
+  { kategorie:'Anlass', titel:'Jahreszeit / Saison', richtung:'Verbinde das Produkt mit der aktuellen Jahreszeit oder einem passenden Anlass im Jahr und zeig, warum es gerade jetzt passt.' },
+  { kategorie:'Anlass', titel:'Als Geschenk', richtung:'Beschreib, für wen das Produkt ein besonders schönes Geschenk ist und zu welchem Anlass.' },
+  { kategorie:'Mitmach-Video', titel:'Erzähl mal', richtung:'Baue das ganze Video so auf, dass es mit einer persönlichen Frage endet, auf die die Zuschauer gern eine eigene kleine Geschichte erzählen.' },
+  { kategorie:'Kurz & knapp', titel:'Ein Satz, der hängen bleibt', richtung:'Bring die Kernaussage in wenigen, prägnanten Worten auf den Punkt — ein Satz, den man sich merkt.' }
 ];
 
 /* Für Kinderbuch & Roman/Unterhaltung: kein Problem-Löser-Framing, sondern Neugier, Figuren, Stimmung */
@@ -1016,11 +1003,11 @@ async function skriptSchreibenKI(p, typ, version, laenge, apiKey){
     webseite: 'die ganze eigene Webseite mit allen Produkten/Büchern darauf — nicht nur ein einzelnes Produkt, sondern eine Einladung, dort in Ruhe zu stöbern'
   }[typ] || 'ein Produkt';
 
-  const ort = typ==='buch' ? 'Erhältlich bei Amazon – Link in der Bio.'
+  const ort = typ==='buch' ? 'Erhältlich bei Amazon. Dazu eine Einladung, ein kurzes, zum Thema passendes Stichwort in die Kommentare zu schreiben – dann kommt der Link per Nachricht.'
             : typ==='affiliate' ? 'Direkt über den Warenkorb im Video bestellbar.'
-            : typ==='freebie' ? 'Gratis über den Link in der Bio.'
-            : typ==='webseite' ? 'Alles auf der Webseite entdecken – Link in der Bio.'
-            : 'Alle Infos über den Link in der Bio.';
+            : typ==='freebie' ? 'Gratis. Dazu eine Einladung, ein kurzes, zum Thema passendes Stichwort in die Kommentare zu schreiben – dann kommt der Link per Nachricht.'
+            : typ==='webseite' ? 'Eine Einladung, ein kurzes Stichwort in die Kommentare zu schreiben – dann kommt der Link zur Webseite per Nachricht.'
+            : 'Eine Einladung, ein kurzes, zum Thema passendes Stichwort in die Kommentare zu schreiben – dann kommt der Link per Nachricht.';
   const werbung = typ==='affiliate' ? 'Werbung' : 'Werbung (in eigener Sache)';
   const tonalitaet = (document.getElementById('gTonalitaet').value || '').trim();
   const preisTxt = p.preis.toFixed(2).replace('.',',');
@@ -1028,7 +1015,7 @@ async function skriptSchreibenKI(p, typ, version, laenge, apiKey){
   const systemPrompt = `Du schreibst kompletten Social-Media-Content für Content-Creator: ein TikTok/Instagram-Avatar-Video-Skript UND die dazu passenden Beitragstexte für TikTok, YouTube Shorts, Instagram und Pinterest — alles in einem Durchgang, damit es inhaltlich zusammenpasst statt wie zufällig zusammengeschnitten zu wirken. Die Person steht selbst nicht vor der Kamera — ein KI-Avatar spricht den Text —, aber alles soll klingen wie ein echter Mensch, der gerade persönlich spricht bzw. schreibt: warm, direkt, konkret, mit eigener Note. KEINE Marketing-Floskeln, keine leeren Superlative ("revolutionär", "game changer"), kein 08/15-Werbesprech, keine generischen Füllsätze wie "das Problem, das du kennst". Nutze die gegebenen Fakten wirklich — Produktname, Zielgruppe, die genannten Vorteile — statt austauschbarer Standardsätze. Schreib jeden Text als vollständigen, in sich abgeschlossenen Gedanken, schneide niemals einen Satz mitten ab. Variiere Satzlänge bewusst.${tonalitaet ? ' Gewünschte Tonalität/Stimme: ' + tonalitaet + '.' : ''} Es geht um ${typBeschreibung}.
 
 Antworte AUSSCHLIESSLICH mit einem JSON-Objekt ohne Markdown-Codeblock, ohne Einleitung, mit genau diesen Feldern:
-{"hook": "Video-Einstieg, erste 2-3 Sekunden, packend, max 2 Sätze",
+{"hook": "Video-Einstieg, erste 2-3 Sekunden, packend, höchstens 6 Wörter",
 "haupt": "Hauptteil des Video-Skripts, mehrere Sätze mit \\n getrennt, Ziellänge etwa ${laenge} Sekunden Sprechzeit (grob ${Math.round(laenge*2.3)} Wörter für hook+haupt zusammen)",
 "cta": "Kurzer Call-to-Action-Satz fürs Video-Ende, der auf folgende Bezugsquelle hinweist — nutze sinngemäß genau diese Angabe: '${ort}'",
 "tiktok": "TikTok-Beitragstext, 2-4 Sätze plus Bezugsquelle plus '${werbung}' plus 4-6 passende deutsche Hashtags",
@@ -1036,9 +1023,23 @@ Antworte AUSSCHLIESSLICH mit einem JSON-Objekt ohne Markdown-Codeblock, ohne Ein
 "youtube_beschreibung": "YouTube-Beschreibung, eigenständiger Absatz, plus Bezugsquelle, plus '${werbung}', plus 3 Hashtags inkl. #shorts",
 "instagram": "Instagram-Beitragstext, ähnlich wie TikTok aber mit 3-5 Hashtags",
 "pinterest_titel": "Pinterest-Pin-Titel mit Suchbegriff vorne, max 100 Zeichen",
-"pinterest_beschreibung": "sachliche Pinterest-Beschreibung, plus Bezugsquelle, plus '${werbung}', plus 3-4 Hashtags"}
+"pinterest_beschreibung": "sachliche Pinterest-Beschreibung, plus Bezugsquelle, plus '${werbung}', plus 3-4 Hashtags",
+"bildtext_oben": "Text, der OBEN im Video eingeblendet wird: höchstens 6 Wörter, greift genau den gesprochenen Hook auf",
+"bildtext_unten": "Text, der am ENDE UNTEN im Video eingeblendet wird: dieselbe Aufforderung wie der gesprochene Call-to-Action (gleiches Stichwort bzw. gleiche Frage), höchstens 12 Wörter",
+"hintergrund_prompt": "Bild-/Video-Prompt für den HeyGen-Hintergrund, auf Englisch: Hochformat 9:16, passende Szene genau zum Thema DIESES Skripts, warmes Licht, langsame Kamerabewegung, ausdrücklich: no text, no people, no books, no book covers (das echte Cover wird später selbst eingefügt)"}
 
-Schreib alles auf Deutsch, in Ich-Perspektive der Person, die das Video macht — ohne einen Namen zu verwenden, da du nicht weißt, wer genau spricht.`;
+WICHTIG: hook, cta, bildtext_oben, bildtext_unten und hintergrund_prompt gehören zu GENAU EINEM Video und müssen exakt zusammenpassen — gleiches Thema, gleiches Stichwort, gleiche Frage.
+
+Schreib alles auf Deutsch, in Ich-Perspektive der Person, die das Video macht — ohne einen Namen zu verwenden, da du nicht weißt, wer genau spricht.
+
+FESTE REGELN (gelten immer, ohne Ausnahme):
+- Niemals „Link in der Bio“, „Link im Profil“ oder Ähnliches schreiben.
+- Der Call-to-Action lädt zum Kommentieren ein: entweder ein kurzes Stichwort in die Kommentare („Schreib ‚Kräuter‘ in die Kommentare …“) oder eine einfache Frage, die man mit einem Wort oder einer kleinen Geschichte beantworten kann.
+- Der Hook ist kurz und bündig: höchstens 6 Wörter. Die Beschreibung sagt dann alles.
+- Keine Markennamen fremder Firmen oder Apps (z. B. Google, Canva, WhatsApp, ChatGPT) und keine Vergleiche mit ihnen. Stattdessen allgemein formulieren („das Internet“, „ein Grafikprogramm“).
+- Keine erfundenen Erfahrungen oder Häufigkeiten wie „die Frage, die ich am häufigsten höre“ oder „viele schreiben mir“. Stattdessen z. B. „Vielleicht fragst du dich …“.
+- Keine Geld- oder Einkommensversprechen, keine Renditeversprechen, keine erfundenen Zahlen.
+- Geht es um Gesundheit, Hausmittel oder Heilkräuter: keine Heilversprechen, und im Beitragstext den Hinweis „Ersetzt keine ärztliche Beratung.“ ergänzen.`;
 
   const userMsg = `Produkt: ${p.name}\nZielgruppe: ${p.zielgruppe || 'nicht näher angegeben'}\nDie stärksten Vorteile: ${p.vorteile.filter(Boolean).join(' / ')}\nKategorie: ${p.kategorie || ''}\nPreis: ${preisTxt} €\nBlickwinkel für dieses Skript: ${version.kategorie} — ${version.titel}. Regieanweisung: ${version.richtung}`;
 
@@ -1052,7 +1053,7 @@ Schreib alles auf Deutsch, in Ich-Perspektive der Person, die das Video macht �
     },
     body: JSON.stringify({
       model: "claude-sonnet-4-6",
-      max_tokens: 1200,
+      max_tokens: 2000,
       system: systemPrompt,
       messages: [{ role: "user", content: userMsg }]
     })
@@ -1088,10 +1089,22 @@ function renderSkriptAusgabe(paket, p, typ, stilLabel){
   window._skriptAktuell = {
     pid: p.id, text: komplett, stil: stilLabel,
     hook: paket.hook, haupt: paket.haupt,
-    tiktok: paket.tiktok, youtube: youtube, instagram: paket.instagram, pinterest: pinterest
+    tiktok: paket.tiktok, youtube: youtube, instagram: paket.instagram, pinterest: pinterest,
+    bildOben: paket.bildtext_oben || '', bildUnten: paket.bildtext_unten || '', hintergrund: paket.hintergrund_prompt || ''
   };
+  const A = window._skriptAktuell;
+  const videoKarte = (A.bildOben || A.bildUnten || A.hintergrund) ? `
+    <div class="skript-output" style="border:2px solid var(--gold, #c9a227)">
+      <span class="abschnitt cyan">🎬 Alles für DIESES Video · ${esc(p.name)} · ${esc(stilLabel)}</span>
+      <span class="abschnitt">⬆️ Bildtext oben (Hook)</span>${esc(A.bildOben)}
+      <span class="abschnitt">⬇️ Bildtext unten am Ende (CTA)</span>${esc(A.bildUnten)}
+      <span class="abschnitt">🖼️ Hintergrund-Prompt für HeyGen</span>${esc(A.hintergrund)}
+    </div>
+    <button class="btn btn-primary" onclick="kopieren(window._skriptAktuell.bildOben)">📋 Bildtext oben</button>
+    <button class="btn btn-primary" onclick="kopieren(window._skriptAktuell.bildUnten)">📋 Bildtext unten</button>
+    <button class="btn btn-primary" onclick="kopieren(window._skriptAktuell.hintergrund)">📋 Hintergrund-Prompt</button>` : '';
 
-  document.getElementById('skriptBox').innerHTML = `
+  document.getElementById('skriptBox').innerHTML = videoKarte + `
     <div class="skript-output" id="skriptText">
       <span class="abschnitt cyan">Hook (erste 3 Sekunden)</span>${esc(paket.hook)}
       <span class="abschnitt">Hauptteil</span>${esc(paket.haupt)}
@@ -1134,6 +1147,7 @@ function skriptSpeichern(){
     youtube: akt.youtube,
     instagram: akt.instagram,
     pinterest: akt.pinterest,
+    bildOben: akt.bildOben, bildUnten: akt.bildUnten, hintergrund: akt.hintergrund,
     status: 'skript',
     datum: new Date().toLocaleDateString('de-DE')
   });
@@ -1190,6 +1204,10 @@ function archivRendern(){
           <option value="online" ${s.status==='online'?'selected':''}>✅ Online</option>
         </select>
       </div>
+      ${(s.bildOben || s.bildUnten) ? `<details open>
+        <summary>🎬 Bildtexte &amp; Hintergrund zu diesem Video</summary>
+        <div class="skript-output"><span class="abschnitt">⬆️ Bildtext oben</span>${esc(s.bildOben||'')}<span class="abschnitt">⬇️ Bildtext unten</span>${esc(s.bildUnten||'')}<span class="abschnitt">🖼️ Hintergrund-Prompt</span>${esc(s.hintergrund||'')}</div>
+      </details>` : ''}
       <details>
         <summary>Skript anzeigen</summary>
         <div class="skript-output">${esc(s.text)}</div>
@@ -1211,6 +1229,9 @@ function archivRendern(){
         <div class="skript-output">${esc(s.pinterest)}</div>
       </details>` : ''}
       <div class="archiv-actions">
+        ${s.bildOben ? `<button class="btn btn-primary btn-sm" onclick="kopieren(skripte.find(x=>x.id===${s.id}).bildOben)">📋 Bildtext oben</button>` : ''}
+        ${s.bildUnten ? `<button class="btn btn-primary btn-sm" onclick="kopieren(skripte.find(x=>x.id===${s.id}).bildUnten)">📋 Bildtext unten</button>` : ''}
+        ${s.hintergrund ? `<button class="btn btn-primary btn-sm" onclick="kopieren(skripte.find(x=>x.id===${s.id}).hintergrund)">📋 Hintergrund</button>` : ''}
         <button class="btn btn-primary btn-sm" onclick="kopieren(skripte.find(x=>x.id===${s.id}).text)">📋 Skript</button>
         ${s.tiktok ? `<button class="btn btn-primary btn-sm" onclick="kopieren(skripte.find(x=>x.id===${s.id}).tiktok)">📋 TikTok</button>` : ''}
         ${s.youtube ? `<button class="btn btn-primary btn-sm" onclick="kopieren(skripte.find(x=>x.id===${s.id}).youtube)">📋 YouTube</button>` : ''}
@@ -1485,7 +1506,17 @@ Antworte AUSSCHLIESSLICH mit einem JSON-Objekt ohne Markdown-Codeblock, ohne Ein
 "pinterest_titel": "Pinterest-Pin-Titel mit Suchbegriff vorne, max 100 Zeichen",
 "pinterest_beschreibung": "sachliche Pinterest-Beschreibung mit 3-4 passenden Hashtags"}
 
-Schreib alles auf Deutsch, in Ich-Perspektive der Person, die postet — ohne einen Namen zu verwenden.`;
+Schreib alles auf Deutsch, in Ich-Perspektive der Person, die postet — ohne einen Namen zu verwenden.
+
+FESTE REGELN (gelten immer, ohne Ausnahme):
+- Niemals „Link in der Bio“, „Link im Profil“ oder Ähnliches schreiben.
+- Der Call-to-Action lädt zum Kommentieren ein: entweder ein kurzes Stichwort in die Kommentare („Schreib ‚Kräuter‘ in die Kommentare …“) oder eine einfache Frage, die man mit einem Wort oder einer kleinen Geschichte beantworten kann.
+- Der Hook ist kurz und bündig: höchstens 6 Wörter. Die Beschreibung sagt dann alles.
+- Keine Markennamen fremder Firmen oder Apps (z. B. Google, Canva, WhatsApp, ChatGPT) und keine Vergleiche mit ihnen. Stattdessen allgemein formulieren („das Internet“, „ein Grafikprogramm“).
+- Keine erfundenen Erfahrungen oder Häufigkeiten wie „die Frage, die ich am häufigsten höre“ oder „viele schreiben mir“. Stattdessen z. B. „Vielleicht fragst du dich …“.
+- Keine Geld- oder Einkommensversprechen, keine Renditeversprechen, keine erfundenen Zahlen.
+- Geht es um Gesundheit, Hausmittel oder Heilkräuter: keine Heilversprechen, und im Beitragstext den Hinweis „Ersetzt keine ärztliche Beratung.“ ergänzen.
+- Ausnahme Facebook, E-Mail und Pinterest: Dort darf der Link direkt im Text stehen.`;
 
     const userMsg = `Produkt: ${p.name}\nZielgruppe: ${ziel}\nDie stärksten Vorteile: ${p.vorteile.filter(Boolean).join(' / ')}\nKategorie: ${p.kategorie || ''}`;
 
